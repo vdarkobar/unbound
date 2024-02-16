@@ -139,6 +139,7 @@ unbound-control lookup youtube.com
 ```
 Dump Cache
 ```
+cd ~ && \
 unbound-control dump_cache > dns-cache.txt
 ```
 Restore Cache
