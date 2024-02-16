@@ -164,17 +164,23 @@ echo "Modifications completed successfully."
 
 ########################################################################
 
+# Copy config file
+
+sudo cp unbound.conf /etc/unbound/unbound.conf
 
 ########################################################################
 
+# Prompt user for reboot confirmation
+while true; do
+    read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
+    case "${response,,}" in
+        yes|y) echo -e "Rebooting the server...${NC}"; sudo reboot; break ;;
+        no|n) echo -e "${RED}Reboot cancelled.${NC}"; exit 0 ;;
+        *) echo -e "${YELLOW}Invalid response. Please answer${NC} yes or no." ;;
+    esac
+done
 
 ########################################################################
-
-
-########################################################################
-
-
-
 
 
 
