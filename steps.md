@@ -123,35 +123,35 @@ netstat -an | grep :853
 
 Verify configuration
 ```
-unbound-checkconf
+sudo unbound-checkconf
 ```
 Unbound Status
 ```
-unbound-control status
+sudo unbound-control status
 ```
 List Forwards
 ```
-unbound-control list_forwards
+sudo unbound-control list_forwards
 ```
 Lookup on Cache
 ```
-unbound-control lookup youtube.com
+sudo unbound-control lookup youtube.com
 ```
 Dump Cache
 ```
 cd ~ && \
-unbound-control dump_cache > dns-cache.txt
+sudo unbound-control dump_cache > dns-cache.txt
 ```
 Restore Cache
 ```
-unbound-control load_cache < dns-cache.txt
+sudo unbound-control load_cache < dns-cache.txt
 ```
 Flush Cache  
 Flush Specific *Host*
 ```
-unbound-control flush www.youtube.com
+sudo unbound-control flush www.youtube.com
 ```
 Flush everything
 ```
-unbound-control flush_zone .
+sudo unbound-control flush_zone .
 ```
