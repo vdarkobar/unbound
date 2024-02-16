@@ -52,13 +52,12 @@ prepend domain-name-servers 127.0.0.1;
 sudo systemctl restart networking
 ```
 <br><br>
-Test installation
+Test installation and DNSSEC Validation  
 ```
 echo && \
 dig pve02.lan.home-network.me +short && \
 dig -x 192.168.1.11 +short
-```
-Test DNSSEC Validation  
+```  
 should return an A record. Note the **ad** flag from the resolver (authenticated data = DNSSEC validation was successful)
 ```
 dig sigok.ippacket.stream
