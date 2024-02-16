@@ -14,7 +14,7 @@ sudo nano /etc/hosts
 <br><br>
 Install unbound
 ```
-sudo apt install -y unbound net-tools tcpdump systemd-resolved ca-certificates
+sudo apt install -y unbound net-tools tcpdump ca-certificates
 ```
 <br><br>
 Update root hints
