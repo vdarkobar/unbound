@@ -3,7 +3,7 @@
 </p>  
 
   
-# UNBOUND
+# Unbound
 validating, recursive, caching DNS resolver  
 
   
@@ -25,4 +25,4 @@ rm steps.md && \
 
 
 <br><br>
-*(steps used to configure <a href="https://github.com/vdarkobar/unbound/blob/main/steps.md">UNBOUND</a>)*
+*(steps used to configure <a href="https://github.com/vdarkobar/unbound/blob/main/steps.md">Unbound</a>)*
