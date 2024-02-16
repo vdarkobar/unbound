@@ -1,9 +1,9 @@
 
 <a href="https://github.com/vdarkobar/unbound/tree/main?tab=readme-ov-file#unbound">Back</a>
 <br><br>
-
+<br><br>
 ## Unbound
-  
+<br><br>
 Prepare hosts file
 ```
 sudo nano /etc/hosts
@@ -161,4 +161,4 @@ Flush everything
 sudo unbound-control flush_zone .
 ```
 <br><br>
-<a href="https://github.com/vdarkobar/unbound/blob/main/steps.md">top of the page</a>
+<a href="https://github.com/vdarkobar/unbound/blob/main/steps.md#unbound">top of the page</a>
