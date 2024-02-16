@@ -158,3 +158,5 @@ Flush everything
 ```
 sudo unbound-control flush_zone .
 ```
+<br><br>
+<a href="https://github.com/vdarkobar/unbound/blob/main/steps.md">top of the page</a>
