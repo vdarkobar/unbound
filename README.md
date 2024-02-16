@@ -4,7 +4,7 @@
 
   
 # Unbound
-validating, recursive, caching DNS resolver  
+validating, recursive, caching DNS resolver with DNS over TLS (DoT)  
 
   
 Clone <a href="https://github.com/vdarkobar/DebianTemplate/blob/main/README.md#debian-template">Template</a>, SSH in using <a href="https://github.com/vdarkobar/Home-Cloud/blob/main/shared/Bastion.md#bastion">Bastion Server</a>  
