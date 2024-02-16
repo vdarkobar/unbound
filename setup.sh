@@ -7,10 +7,10 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-# Install BIND9
+# Install Unbound
 
 if ! sudo apt -y install unbound net-tools tcpdump ca-certificates; then
-    echo "Failed to install BIND9 packages. Exiting."
+    echo "Failed to install packages. Exiting."
     exit 1
 fi
 
