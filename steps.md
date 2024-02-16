@@ -58,15 +58,15 @@ echo && \
 dig pve02.lan.home-network.me +short && \
 dig -x 192.168.1.11 +short
 ```  
-should return an A record. Note the **ad** flag from the resolver (authenticated data = DNSSEC validation was successful)
+Should return an A record. Note the **ad** flag from the resolver (authenticated data = DNSSEC validation was successful)
 ```
 dig sigok.ippacket.stream
 ```
-should return a SERVFAIL error
+Should return a SERVFAIL error
 ```
 dig sigfail.ippacket.stream
 ```
-open in browser
+Open in browser
 ```
 https://wander.science/projects/dns/dnssec-resolver-test/
 ```
@@ -136,7 +136,7 @@ Restore Cache
 unbound-control load_cache < dns-cache.txt
 ```
 Flush Cache  
-Flush Specific Host
+Flush Specific *Host*
 ```
 unbound-control flush www.youtube.com
 ```
