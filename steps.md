@@ -16,17 +16,17 @@ Install unbound
 ```
 sudo apt install -y unbound net-tools tcpdump systemd-resolved ca-certificates
 ```
-
+<br><br>
 Update root hints
 ```
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints
 ```
-
+<br><br>
 Improve avg response times
 ```
 echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && sudo sysctl -p
 ```
-
+<br><br>
 Prepare ufw
 ```
 sudo ufw allow 53/udp comment "DNS" && \
@@ -34,7 +34,7 @@ sudo ufw allow 53/tcp comment "DNS" && \
 sudo ufw allow 853/tcp comment "DNS over TLS" && \
 sudo systemctl restart ufw
 ```
-
+<br><br>
 Overriding DHCP settings
 ```
 sudo nano /etc/dhcp/dhclient.conf
@@ -51,3 +51,4 @@ prepend domain-name-servers 127.0.0.1;
 ```
 sudo systemctl restart networking
 ```
+<br><br>
