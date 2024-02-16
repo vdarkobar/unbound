@@ -35,10 +35,10 @@ else
     echo -e "${GREEN}Backup of $CLOUD_CFG already exists. Skipping backup.${NC}"
 fi
 
-# Before modifying BIND9 configuration files, create backups if they don't already exist
+# Before modifying Unbound configuration files, create backups if they don't already exist
 
 UNBOUNG_FILES=(
-    "/etc/bind/unbound.conf"
+    "/etc/unbound/unbound.conf"
 )
 
 for file in "${UNBOUNG_FILES[@]}"; do
