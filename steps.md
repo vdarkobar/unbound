@@ -70,6 +70,12 @@ open in browser
 ```
 https://wander.science/projects/dns/dnssec-resolver-test/
 ```
+```
+http://www.dnssec-or-not.com/
+```
+```
+https://internet.nl/connection
+```
 The first command should give a status report of SERVFAIL and no IP address.  
 The second should give NOERROR plus an IP address.
 ```
