@@ -37,11 +37,11 @@ fi
 
 # Before modifying Unbound configuration files, create backups if they don't already exist
 
-UNBOUNG_FILES=(
+UNBOUND_FILES=(
     "/etc/unbound/unbound.conf"
 )
 
-for file in "${UNBOUNG_FILES[@]}"; do
+for file in "${UNBOUND_FILES[@]}"; do
     if [ ! -f "$file.backup" ]; then
         sudo cp "$file" "$file.backup"
         echo -e "${GREEN}Backup of $file created.${NC}"
