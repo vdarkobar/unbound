@@ -52,3 +52,47 @@ prepend domain-name-servers 127.0.0.1;
 sudo systemctl restart networking
 ```
 <br><br>
+Test installation
+```
+echo && \
+dig pve02.lan.home-network.me +short && \
+dig -x 192.168.1.11 +short
+```
+Test DNSSEC Validation
+```
+dig sigok.verteiltesysteme.net +dnssec
+```
+The first command should give a status report of SERVFAIL and no IP address.  
+The second should give NOERROR plus an IP address.
+```
+dig fail01.dnssec.works
+```
+```
+dig dnssec.works
+```
+If DNSSEC is functioning correctly, you should NOT get an IP address in response  
+to a query for www.dnssec-failed.org, and in the status section of the output, 
+you might see SERVFAIL.
+```
+dig @localhost www.dnssec-failed.org A +dnssec
+```
+Ensure you get an A record in response and there is an ad (authenticated data) flag in the flags section,  
+indicating the data was DNSSEC validated.
+```
+dig @localhost ietf.org A +dnssec
+```
+Run tcpdump command to monitor traffics on the interface 'eth0' with DoT port 853  
+Move to the client machine and run the below command to access external/internet domain
+```
+sudo tcpdump -vv -x -X -s 1500 -i ens18 'port 853'
+```
+Ports
+```
+ss -tulpn
+```
+```
+netstat -an | grep :53 && \
+netstat -an | grep :853
+```
+
+
