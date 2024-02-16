@@ -89,3 +89,81 @@ else
 fi
 
 ########################################################################
+
+# Prepare firewall:
+sudo ufw allow 53/udp comment "DNS port 53/udp" && \
+sudo ufw allow 53/tcp comment "DNS port 53/tcp" && \
+sudo ufw allow 853/tcp comment "DNS over TLS port 853/tcp" && \
+sudo systemctl restart ufw
+
+########################################################################
+
+# Update root hints
+
+wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints
+
+########################################################################
+
+# Improve avg response times
+
+echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && sudo sysctl -p
+
+########################################################################
+
+# Modify /etc/dhcp/dhclient.conf
+
+# Identify the server's primary IP address
+SERVER_IP=$(hostname -I | awk '{print $1}')
+if [ -z "$SERVER_IP" ]; then
+    echo "Error: Could not determine the server IP address."
+    exit 1
+fi
+
+# File to edit
+DHCLIENT_CONF="/etc/dhcp/dhclient.conf"
+
+# Check if the dhclient.conf file exists
+if [ ! -f "$DHCLIENT_CONF" ]; then
+    echo "Error: $DHCLIENT_CONF does not exist."
+    exit 1
+fi
+
+# Make a backup of the original dhclient.conf file
+cp "$DHCLIENT_CONF" "$DHCLIENT_CONF.bak"
+
+# Remove only the keywords 'domain-name-servers' and 'dhcp6.name-servers', leaving their parameters
+sed -i 's/domain-name-servers//g' "$DHCLIENT_CONF"
+sed -i 's/dhcp6.name-servers//g' "$DHCLIENT_CONF"
+
+# Replace the specific line with the server IP, and append a new line for the local DNS
+sed -i "/^#prepend domain-name-servers 127.0.0.1;/c\prepend domain-name-servers $SERVER_IP;\nprepend domain-name-servers 127.0.0.1;" "$DHCLIENT_CONF"
+
+if [ $? -eq 0 ]; then
+    echo "dhclient.conf has been successfully updated."
+else
+    echo "Error: Failed to update dhclient.conf."
+    exit 1
+fi
+
+########################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
