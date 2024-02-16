@@ -58,10 +58,16 @@ echo && \
 dig pve02.lan.home-network.me +short && \
 dig -x 192.168.1.11 +short
 ```
-Test DNSSEC Validation
+Test DNSSEC Validation  
+should return an A record. Note the **ad** flag from the resolver (authenticated data = DNSSEC validation was successful)
 ```
-dig sigok.verteiltesysteme.net +dnssec
+dig sigok.ippacket.stream
 ```
+should return a SERVFAIL error
+```
+dig sigfail.ippacket.stream
+```
+open in browser
 ```
 https://wander.science/projects/dns/dnssec-resolver-test/
 ```
