@@ -54,6 +54,14 @@ sudo systemctl restart networking
 <br><br>
 ### Add your configuration
 <br><br>
+```
+sudo systemctl restart systemd-resolved
+sudo systemctl restart unbound
+sudo systemctl is-enabled unbound
+sudo systemctl status unbound
+sudo systemctl status systemd-resolved
+```
+<br><br>
 Test installation and DNSSEC Validation  
 ```
 echo && \
