@@ -62,6 +62,9 @@ Test DNSSEC Validation
 ```
 dig sigok.verteiltesysteme.net +dnssec
 ```
+```
+https://wander.science/projects/dns/dnssec-resolver-test/
+```
 The first command should give a status report of SERVFAIL and no IP address.  
 The second should give NOERROR plus an IP address.
 ```
@@ -94,5 +97,39 @@ ss -tulpn
 netstat -an | grep :53 && \
 netstat -an | grep :853
 ```
+<br><br>
+*unbound-control* commands
 
-
+Verify configuration
+```
+unbound-checkconf
+```
+Unbound Status
+```
+unbound-control status
+```
+List Forwards
+```
+unbound-control list_forwards
+```
+Lookup on Cache
+```
+unbound-control lookup youtube.com
+```
+Dump Cache
+```
+unbound-control dump_cache > dns-cache.txt
+```
+Restore Cache
+```
+unbound-control load_cache < dns-cache.txt
+```
+Flush Cache  
+Flush Specific Host
+```
+unbound-control flush www.youtube.com
+```
+Flush everything
+```
+unbound-control flush_zone .
+```
