@@ -253,7 +253,6 @@ forward-zone:
 #
 ## Authoritative, validating, recursive caching DNS
 
-
 #####################################################################
 server:
     verbosity: 1
