@@ -76,9 +76,11 @@ else
         # Remove any existing lines with the current hostname in /etc/hosts
         sudo sed -i "/$HOST_NAME/d" /etc/hosts
 
-        # Append the new line in the specified format to /etc/hosts
+        # Prepare the new line in the specified format
         NEW_LINE="$HOST_IP\t$HOST_NAME $HOST_NAME.$DOMAIN_NAME"
-        echo -e "$NEW_LINE" | sudo tee -a /etc/hosts > /dev/null
+
+        # Insert the new line directly below the 127.0.0.1 localhost line
+        sudo awk -v newline="$NEW_LINE" '/^127.0.0.1 localhost$/ { print; print newline; next }1' /etc/hosts | sudo tee /etc/hosts.tmp > /dev/null && sudo mv /etc/hosts.tmp /etc/hosts
 
         echo -e "${GREEN}File /etc/hosts has been updated.${NC}"
     fi
