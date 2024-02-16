@@ -1,7 +1,7 @@
 
 <a href="https://github.com/vdarkobar/unbound/tree/main?tab=readme-ov-file#unbound">Back</a>
 <br><br>
-<br><br>
+
 ## Unbound
 <br><br>
 Prepare hosts file
