@@ -25,9 +25,9 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 echo -e "${GREEN} - You'll be asked to enter one Local Subnet for Access Control, ${NC}"
-echo -e "${GREEN} - one Host Name for the Client, located on specified Subnet, and it's IP Address${NC}"
-echo -e "${GREEN} - Other Clients can be configured later in the Unbound configuration file: ${NC}  /etc/unbound/unbound.conf"
-
+echo -e "${GREEN} - one Host Name for the Client, located on specified Subnet, and it's IP Address. ${NC}"
+echo -e "${GREEN} - Other Clients can be configured later in the Unbound configuration file:${NC} /etc/unbound/unbound.conf"
+echo
 
 ######################################
 # Prompt user to confirm script start#
@@ -52,7 +52,7 @@ while true; do
 
     # If user entered anything else, ask them to correct it
     else
-        echo -e "$${YELLOW}Invalid input. Please enter 'y' or 'n'. ${NC}"
+        echo -e "${YELLOW}Invalid input. Please enter 'y' or 'n'. ${NC}"
     fi
 done
 
@@ -284,7 +284,7 @@ fi
 sed -i "s/DOMAIN_NAME/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
 echo -e "${GREEN}Domain name $DOMAIN_NAME_LOCAL has been set in ${NC} unbound.conf"
-
+echo
 # User input
 
 # Ask and validate LOCAL_SUBNET_ACCESS
