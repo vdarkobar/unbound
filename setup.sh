@@ -114,6 +114,26 @@ for file in "${UNBOUND_FILES[@]}"; do
 done
 
 
+#######################
+# Edit cloud.cfg file #
+#######################
+echo
+echo -e "${GREEN} Preventing Cloud-init of rewritining hosts file ${NC}"
+
+sleep 0.5 # delay for 0.5 seconds
+echo
+
+# Define the file path
+FILE_PATH="/etc/cloud/cloud.cfg"
+
+# Comment out the specified modules
+sudo sed -i '/^\s*- set_hostname/ s/^/#/' "$FILE_PATH"
+sudo sed -i '/^\s*- update_hostname/ s/^/#/' "$FILE_PATH"
+sudo sed -i '/^\s*- update_etc_hosts/ s/^/#/' "$FILE_PATH"
+
+echo -e "${GREEN}Modifications to $FILE_PATH applied successfully.${NC}"
+
+
 ######################
 # Prepare hosts file #
 ######################
@@ -358,7 +378,7 @@ sudo cp unbound.conf /etc/unbound/unbound.conf
 
 
 ##########################
-# Info befor reboot #
+# Info before reboot #
 ##########################
 
 echo -e "${GREEN}REMEMBER: ${NC}"
