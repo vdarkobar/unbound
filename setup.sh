@@ -322,21 +322,21 @@ echo
 sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
 # Attempt to replace placeholders in unbound.conf
-if sed -i "s/LOCAL_SUBNET_ACCESS/$LOCAL_SUBNET_ACCESS/g" unbound.conf; then
+if sed -i "s:LOCAL_SUBNET_ACCESS:$LOCAL_SUBNET_ACCESS:g" unbound.conf; then
   echo -e "${GREEN}Local Subnet applied successfully. ${NC}"
 else
   echo -e "${RED}Error replacing Subnet Address. ${NC}"
   exit 1
 fi
 
-if sed -i "s/HOST_NAME_LOCAL/$HOST_NAME_LOCAL/g" unbound.conf; then
+if sed -i "s:HOST_NAME_LOCAL:$HOST_NAME_LOCAL:g" unbound.conf; then
   echo -e "${GREEN}Host Name applied successfully. ${NC}"
 else
   echo -e "${RED}Error replacing Host Name. ${NC}"
   exit 1
 fi
 
-if sed -i "s/IP_LOCAL/$IP_LOCAL/g" unbound.conf; then
+if sed -i "s:IP_LOCAL:$IP_LOCAL:g" unbound.conf; then
   echo -e "${GREEN}IP Address applied successfully."
 else
   echo -e "${RED}Error replacing IP Address. ${NC}"
