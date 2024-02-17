@@ -148,7 +148,7 @@ else
         sudo sed -i "/$HOST_NAME/d" /etc/hosts
 
         # Prepare the new line in the specified format
-        NEW_LINE="$HOST_IP\t$HOST_NAME $HOST_NAME.$DOMAIN_NAME"
+        NEW_LINE="$HOST_IP"$'\t'"$HOST_NAME $HOST_NAME.$DOMAIN_NAME"
 
         # Insert the new line directly below the 127.0.0.1 localhost line
         sudo awk -v newline="$NEW_LINE" '/^127.0.0.1 localhost$/ { print; print newline; next }1' /etc/hosts | sudo tee /etc/hosts.tmp > /dev/null && sudo mv /etc/hosts.tmp /etc/hosts
