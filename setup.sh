@@ -167,6 +167,7 @@ echo
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints
 echo
 
+
 ##############################
 # Improve avg response times #
 ##############################
