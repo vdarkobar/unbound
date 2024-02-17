@@ -19,7 +19,7 @@ NC='\033[0m'
 # Intro message #
 #################
 echo
-echo -e "${GREEN} message ${NC}"
+echo -e "${GREEN} This script will install and configure Unbound ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
@@ -28,12 +28,37 @@ echo -e "${GREEN}REMEMBER: ${NC}"
 echo
 sleep 0.5 # delay for 0.5 seconds
 
-echo -e "${GREEN} - some text ${NC}"
-echo -e "${GREEN} - some text ${NC}"
-echo -e "${GREEN} - some text ${NC}"
+echo -e "${GREEN} - You'll be asked to enter one Local Subnet for Access Control, ${NC}"
+echo -e "${GREEN} - one Host Name for the Client, located on specified Subnet, and it's IP Address${NC}"
+echo -e "${GREEN} - Other Clients can be configured later in the Unbound configuration file: ${NC}  /etc/unbound/unbound.conf"
 
-sleep 1 # delay for 1 seconds
-echo
+
+######################################
+# Prompt user to confirm script start#
+######################################
+while true; do
+    echo -e "${GREEN}Start Unbound installation and configuration? (y/n) ${NC}"
+    read choice
+
+    # Check if user entered "y" or "Y"
+    if [[ "$choice" == [yY] ]]; then
+
+        # Confirming the start of the script
+        echo -e "${GREEN}Starting... ${NC}"
+        sleep 0.5 # delay for 0.5 second
+        echo
+        break
+
+    # If user entered "n" or "N", exit the script
+    elif [[ "$choice" == [nN] ]]; then
+        echo -e "${RED}Aborting script. ${NC}"
+        exit
+
+    # If user entered anything else, ask them to correct it
+    else
+        echo -e "$${YELLOW}Invalid input. Please enter 'y' or 'n'. ${NC}"
+    fi
+done
 
 
 ###################
@@ -167,7 +192,6 @@ echo
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints
 echo
 
-
 ##############################
 # Improve avg response times #
 ##############################
@@ -243,7 +267,7 @@ echo -e "${GREEN}Modifications completed successfully. ${NC}"
 
 
 ########################################
-# Prepare Unbound configuration file #
+# Preparing Unbound configuration file #
 ########################################
 echo
 echo -e "${GREEN}Preparing Unbound configuration file (unbound.conf) ${NC}"
@@ -264,6 +288,62 @@ fi
 sed -i "s/DOMAIN_NAME/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
 echo -e "${GREEN}Domain name $DOMAIN_NAME_LOCAL has been set in ${NC} unbound.conf"
+
+# User input
+
+# Ask and validate LOCAL_SUBNET_ACCESS
+while true; do
+  read -p "Enter Local Subnet for Access Control (Format example: 192.168.10.0/24): " LOCAL_SUBNET_ACCESS
+  if echo "$LOCAL_SUBNET_ACCESS" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$'; then
+    break
+  else
+    echo -e "${RED}Error: Subnet format is invalid. Please enter a valid CIDR notation. ${NC}"
+  fi
+done
+
+# Ask and validate HOST_NAME_LOCAL
+while true; do
+  read -p "Enter Machine Host Name (Format example: server01): " HOST_NAME_LOCAL
+  if echo "$HOST_NAME_LOCAL" | grep -Eq '^[a-zA-Z0-9\-]+$'; then
+    break
+  else
+    echo -e "${RED}Error: Host name format is invalid. Use only alphanumeric characters and hyphens. ${NC}"
+  fi
+done
+
+# Ask and validate IP_LOCAL
+while true; do
+  read -p "Enter IP address for the Host you have named (Format example: 192.168.1.11): " IP_LOCAL
+  if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+    break
+  else
+    echo -e "${RED}Error: IP Address format is invalid. Please enter a valid IPv4 address. ${NC}"
+  fi
+done
+
+# Attempt to replace placeholders in unbound.conf
+if sed -i "s/LOCAL_SUBNET_ACCESS/$LOCAL_SUBNET_ACCESS/g" unbound.conf; then
+  echo -e "${GREEN}LOCAL_SUBNET_ACCESS replaced successfully. ${NC}"
+else
+  echo -e "${RED}Error replacing Subnet Address. ${NC}"
+  exit 1
+fi
+
+if sed -i "s/HOST_NAME_LOCAL/$HOST_NAME_LOCAL/g" unbound.conf; then
+  echo -e "${GREEN}HOST_NAME_LOCAL replaced successfully. ${NC}"
+else
+  echo -e "${RED}Error replacing Host Name. ${NC}"
+  exit 1
+fi
+
+if sed -i "s/IP_LOCAL/$IP_LOCAL/g" unbound.conf; then
+  echo -e "${GREEN}IP_LOCAL replaced successfully."
+else
+  echo -e "${RED}Error replacing IP Address. ${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}Configuration file updated successfully. ${NC}"
 
 
 ##############################
