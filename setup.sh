@@ -165,7 +165,7 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints
-
+echo
 
 ##############################
 # Improve avg response times #
@@ -256,11 +256,6 @@ sudo cp unbound.conf /etc/unbound/unbound.conf
 ##########################
 # Prompt user for reboot #
 ##########################
-echo
-echo -e "${GREEN}Adding new configuration file to Unbound (unbound.conf) ${NC}"
-
-sleep 0.5 # delay for 0.5 seconds
-echo
 
 while true; do
     read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
