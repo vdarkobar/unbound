@@ -366,7 +366,9 @@ echo
 sleep 0.5 # delay for 0.5 seconds
 echo -e "${GREEN}Unbound Access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo -e "${GREEN}One Client Machine (${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
-echo -e "${GREEN}Additional clients can be configured in:${NC} /etc/unboun/unboud.conf"
+echo -e "${GREEN}Additional clients must be configured in:${NC} /etc/unboun/unboud.conf"
+echo
+echo -e "${GREEN}Unbound will listen on all interfaces, response limited to specified subnets (Access Control) ${NC}"
 echo
 
 ##########################
