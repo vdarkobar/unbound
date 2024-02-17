@@ -25,8 +25,8 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 echo -e "${GREEN} - You'll be asked to enter one Local Subnet for Access Control, ${NC}"
-echo -e "${GREEN} - one Host Name for the Client, located on specified Subnet, and it's IP Address. ${NC}"
-echo -e "${GREEN} - Other Clients can be configured later in the Unbound configuration file:${NC} /etc/unbound/unbound.conf"
+echo -e "${GREEN} - Host Name for the Client Machine and it's IP Address. ${NC}"
+echo -e "${GREEN} - Other Clients must be configured in the Unbound configuration file:${NC} /etc/unbound/unbound.conf"
 echo
 
 ######################################
