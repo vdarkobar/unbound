@@ -317,23 +317,28 @@ while true; do
   fi
 done
 
+echo
+
 # Attempt to replace placeholders in unbound.conf
 if sed -i 's/LOCAL_SUBNET_ACCESS/$LOCAL_SUBNET_ACCESS/g' unbound.conf; then
-  echo -e "${GREEN}LOCAL_SUBNET_ACCESS replaced successfully. ${NC}"
+  echo -e "${GREEN}Local Subnet applied successfully. ${NC}"
+  echo
 else
   echo -e "${RED}Error replacing Subnet Address. ${NC}"
   exit 1
 fi
 
 if sed -i 's/HOST_NAME_LOCAL/$HOST_NAME_LOCAL/g' unbound.conf; then
-  echo -e "${GREEN}HOST_NAME_LOCAL replaced successfully. ${NC}"
+  echo -e "${GREEN}Host Name applied successfully. ${NC}"
+  echo
 else
   echo -e "${RED}Error replacing Host Name. ${NC}"
   exit 1
 fi
 
 if sed -i 's/IP_LOCAL/$IP_LOCAL/g' unbound.conf; then
-  echo -e "${GREEN}IP_LOCAL replaced successfully."
+  echo -e "${GREEN}IP Address applied successfully."
+  echo
 else
   echo -e "${RED}Error replacing IP Address. ${NC}"
   exit 1
@@ -345,7 +350,6 @@ echo -e "${GREEN}Configuration file updated successfully. ${NC}"
 ##############################
 # Replace configuration file #
 ##############################
-echo
 echo -e "${GREEN}Adding new configuration file to Unbound (unbound.conf) ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -363,7 +367,7 @@ echo
 sleep 0.5 # delay for 0.5 seconds
 echo -e "${GREEN}Unbound Access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo -e "${GREEN}One Client Machine (${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
-echo -e "${GREEN}Additional clients can be configured in:${NC} /etc/unboun/unboud.config"
+echo -e "${GREEN}Additional clients can be configured in:${NC} /etc/unboun/unboud.conf"
 echo
 
 ##########################
