@@ -24,10 +24,6 @@ echo -e "${GREEN} This script will install and configure Unbound ${NC}"
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-echo -e "${GREEN}REMEMBER: ${NC}"
-echo
-sleep 0.5 # delay for 0.5 seconds
-
 echo -e "${GREEN} - You'll be asked to enter one Local Subnet for Access Control, ${NC}"
 echo -e "${GREEN} - one Host Name for the Client, located on specified Subnet, and it's IP Address${NC}"
 echo -e "${GREEN} - Other Clients can be configured later in the Unbound configuration file: ${NC}  /etc/unbound/unbound.conf"
@@ -357,6 +353,18 @@ echo
 
 sudo cp unbound.conf /etc/unbound/unbound.conf
 
+
+##########################
+# Info befor reboot #
+##########################
+
+echo -e "${GREEN}REMEMBER: ${NC}"
+echo
+sleep 0.5 # delay for 0.5 seconds
+echo -e "${GREEN}Unbound Access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
+echo -e "${GREEN}One Client Machine (${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
+echo -e "${GREEN}Additional clients can be configured in:${NC} /etc/unboun/unboud.config"
+echo
 
 ##########################
 # Prompt user for reboot #
