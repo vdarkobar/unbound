@@ -172,7 +172,7 @@ else
 
         # Insert the new line directly below the 127.0.0.1 localhost line
         sudo awk -v newline="$NEW_LINE" '/^127.0.0.1 localhost$/ { print; print newline; next }1' /etc/hosts | sudo tee /etc/hosts.tmp > /dev/null && sudo mv /etc/hosts.tmp /etc/hosts
-
+        echo
         echo -e "${GREEN}File /etc/hosts has been updated.${NC}"
     fi
 
