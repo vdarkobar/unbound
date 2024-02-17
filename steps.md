@@ -70,7 +70,7 @@ sudo systemctl status systemd-resolved
 Test installation and DNSSEC Validation  
 ```
 echo && \
-dig pve02.lan.home-network.me +short && \
+dig pve01.lan.home-network.me +short && \
 dig -x 192.168.1.11 +short
 ```  
 Should return an A record. Note the **ad** flag from the resolver (authenticated data = DNSSEC validation was successful)
