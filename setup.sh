@@ -24,9 +24,8 @@ echo -e "${GREEN} This script will install and configure Unbound ${NC}"
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-echo -e "${GREEN} - You'll be asked to enter one Local Subnet for Access Control, ${NC}"
-echo -e "${GREEN} - Host Name for the Client Machine and it's IP Address. ${NC}"
-echo -e "${GREEN} - Other Clients must be configured in the Unbound configuration file:${NC} /etc/unbound/unbound.conf"
+echo -e "${GREEN} - You'll be asked to enter: ${NC}"
+echo -e "${GREEN} - One Local Subnet for Access Control, one Host Name for the Client Machine and it's IP Address. ${NC}"
 echo
 
 ######################################
@@ -378,17 +377,20 @@ sudo cp unbound.conf /etc/unbound/unbound.conf
 
 
 ##########################
-# Info before reboot #
+# Info befor reboot #
 ##########################
 
 echo -e "${GREEN}REMEMBER: ${NC}"
 echo
 sleep 0.5 # delay for 0.5 seconds
-echo -e "${GREEN}Unbound Access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
+echo -e "${GREEN}Unbound will listen on all interfaces, access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo -e "${GREEN}One Client Machine (${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
 echo -e "${GREEN}Additional clients must be configured in:${NC} /etc/unboun/unboud.conf"
 echo
-echo -e "${GREEN}Unbound will listen on all interfaces, response limited to specified subnets (Access Control) ${NC}"
+echo -e "${GREEN}For queries that cannot be answered locally or from the cache, the Unbound server forwards these queries to upstream DNS servers, ${NC}"
+echo -e "${GREEN}using DNS-over-TLS (DoT) for encryption, enhancing privacy and security.  ${NC}"
+echo -e "${GREEN}It's configured to use reputable DoT providers such as Quad9 (I), Cloudflare (II), and optionally Google (must be enabled) ${NC}"
+
 echo
 
 ##########################
