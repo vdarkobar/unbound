@@ -66,7 +66,7 @@ if [ ! -f /etc/hosts.backup ]; then
     sudo cp /etc/hosts /etc/hosts.backup
     echo -e "${GREEN}Backup of /etc/hosts created.${NC}"
 else
-    echo -e "${GREEN}Backup of /etc/hosts already exists. Skipping backup.${NC}"
+    echo -e "${YELLOW}Backup of /etc/hosts already exists. Skipping backup.${NC}"
 fi
 
 # Backup original /etc/cloud/cloud.cfg file before modifications
@@ -75,7 +75,7 @@ if [ ! -f "$CLOUD_CFG.bak" ]; then
     sudo cp "$CLOUD_CFG" "$CLOUD_CFG.bak"
     echo -e "${GREEN}Backup of $CLOUD_CFG created.${NC}"
 else
-    echo -e "${GREEN}Backup of $CLOUD_CFG already exists. Skipping backup.${NC}"
+    echo -e "${YELLOW}Backup of $CLOUD_CFG already exists. Skipping backup.${NC}"
 fi
 
 # Before modifying Unbound configuration files, create backups if they don't already exist
@@ -89,7 +89,7 @@ for file in "${UNBOUND_FILES[@]}"; do
         sudo cp "$file" "$file.backup"
         echo -e "${GREEN}Backup of $file created.${NC}"
     else
-        echo -e "${GREEN}Backup of $file already exists. Skipping backup.${NC}"
+        echo -e "${YELLOW}Backup of $file already exists. Skipping backup.${NC}"
     fi
 done
 
@@ -117,7 +117,7 @@ else
 
     # Skip /etc/hosts update if HOST_IP or HOST_NAME are not determined
     if [ -z "$HOST_IP" ] || [ -z "$HOST_NAME" ]; then
-        echo -e "${RED}Could not determine the host IP address or hostname. Skipping /etc/hosts update!!!${NC}"
+        echo -e "${RED}Could not determine the host IP address or hostname. Skipping /etc/hosts update${NC}"
     else
         # Display the extracted domain name, host IP, and hostname
         echo -e "${GREEN}Domain name: $DOMAIN_NAME${NC}"
