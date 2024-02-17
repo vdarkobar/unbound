@@ -60,7 +60,6 @@ done
 ###################
 # Install Unbound #
 ###################
-echo
 echo -e "${GREEN} Installing Unbound and other packages ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -77,7 +76,7 @@ fi
 #######################
 
 echo
-echo -e "${GREEN} Createing backup files ${NC}"
+echo -e "${GREEN} Creating backup files ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
@@ -344,12 +343,13 @@ else
 fi
 
 echo -e "${GREEN}Configuration file updated successfully. ${NC}"
+echo
 
 
 ##############################
 # Replace configuration file #
 ##############################
-echo -e "${GREEN}Adding new configuration file to Unbound (unbound.conf) ${NC}"
+echo -e "${GREEN}Replacing existing Unbound configuration file (unbound.conf) ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
