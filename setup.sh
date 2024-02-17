@@ -241,6 +241,30 @@ fi
 echo -e "${GREEN}Modifications completed successfully. ${NC}"
 
 
+########################################
+# Prepare Unbound configuration file #
+########################################
+echo
+echo -e "${GREEN}Preparing Unbound configuration file (unbound.conf) ${NC}"
+
+sleep 0.5 # delay for 0.5 seconds
+echo
+
+# Extract the domain name from /etc/resolv.conf
+DOMAIN_NAME_LOCAL=$(grep '^domain' /etc/resolv.conf | awk '{print $2}')
+
+# Check if the domain name was found
+if [ -z "$DOMAIN_NAME_LOCAL" ]; then
+  echo -e "${RED}Domain name not found in ${NC} /etc/resolv.conf"
+  exit 1
+fi
+
+# Replace DOMAIN_NAME placeholder in unbound.conf with the extracted domain name
+sed -i "s/DOMAIN_NAME/$DOMAIN_NAME_LOCAL/g" unbound.conf
+
+echo -e "${GREEN}Domain name $DOMAIN_NAME_LOCAL has been set in ${NC} unbound.conf"
+
+
 ##############################
 # Replace configuration file #
 ##############################
