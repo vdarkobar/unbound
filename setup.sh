@@ -318,21 +318,21 @@ while true; do
 done
 
 # Attempt to replace placeholders in unbound.conf
-if sed -i "s/LOCAL_SUBNET_ACCESS/$LOCAL_SUBNET_ACCESS/g" unbound.conf; then
+if sed -i 's/LOCAL_SUBNET_ACCESS/$LOCAL_SUBNET_ACCESS/g' unbound.conf; then
   echo -e "${GREEN}LOCAL_SUBNET_ACCESS replaced successfully. ${NC}"
 else
   echo -e "${RED}Error replacing Subnet Address. ${NC}"
   exit 1
 fi
 
-if sed -i "s/HOST_NAME_LOCAL/$HOST_NAME_LOCAL/g" unbound.conf; then
+if sed -i 's/HOST_NAME_LOCAL/$HOST_NAME_LOCAL/g' unbound.conf; then
   echo -e "${GREEN}HOST_NAME_LOCAL replaced successfully. ${NC}"
 else
   echo -e "${RED}Error replacing Host Name. ${NC}"
   exit 1
 fi
 
-if sed -i "s/IP_LOCAL/$IP_LOCAL/g" unbound.conf; then
+if sed -i 's/IP_LOCAL/$IP_LOCAL/g' unbound.conf; then
   echo -e "${GREEN}IP_LOCAL replaced successfully."
 else
   echo -e "${RED}Error replacing IP Address. ${NC}"
