@@ -5,32 +5,41 @@ clear
 ##############################################################
 # Define ANSI escape sequence for green, red and yellow font #
 ##############################################################
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 
+
 ########################################################
 # Define ANSI escape sequence to reset font to default #
 ########################################################
+
 NC='\033[0m'
 
 
 #################
 # Intro message #
 #################
+
 echo
 echo -e "${GREEN} This script will install and configure Unbound ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-echo -e "${GREEN} - You'll be asked to enter: ${NC}"
-echo -e "${GREEN} - One Local Subnet for Access Control, one Host Name for the Client Machine and it's IP Address. ${NC}"
+echo -e "${GREEN} You'll be asked to enter: ${NC}"
+echo -e "${GREEN} - One Local Subnet for Access Control, ${NC}"
+echo -e "${GREEN} - One Host Name for the Client Machine and it's IP Address. ${NC}"
 echo
+echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter Pi-Hole Dashboard Admin Password ${NC}"
+echo
+
 
 ######################################
 # Prompt user to confirm script start#
 ######################################
+
 while true; do
     echo -e "${GREEN}Start Unbound installation and configuration? (y/n) ${NC}"
     read choice
@@ -59,6 +68,7 @@ done
 ###################
 # Install Unbound #
 ###################
+
 echo -e "${GREEN}Installing Unbound and other packages ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -116,6 +126,7 @@ done
 #######################
 # Edit cloud.cfg file #
 #######################
+
 echo
 echo -e "${GREEN} Preventing Cloud-init of rewritining hosts file ${NC}"
 
@@ -136,6 +147,7 @@ echo -e "${GREEN}Modifications to${NC} $FILE_PATH ${GREEN}applied successfully.$
 ######################
 # Prepare hosts file #
 ######################
+
 echo
 echo -e "${GREEN} Setting up hosts file ${NC}"
 
@@ -182,6 +194,7 @@ fi
 ####################
 # Prepare firewall #
 ####################
+
 echo
 echo -e "${GREEN} Preparing firewall ${NC}"
 
@@ -197,6 +210,7 @@ sudo systemctl restart ufw
 #####################
 # Update root hints #
 #####################
+
 echo
 echo -e "${GREEN} Updating root hints file ${NC}"
 
@@ -206,9 +220,11 @@ echo
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints
 echo
 
+
 ##############################
 # Improve avg response times #
 ##############################
+
 echo
 echo -e "${GREEN} Adding options to sysctl.conf file ${NC}"
 
@@ -221,6 +237,7 @@ echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && s
 #############################
 # Modify dhclient.conf file #
 #############################
+
 echo
 echo -e "${GREEN}Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
 
@@ -283,6 +300,7 @@ echo -e "${GREEN}Modifications completed successfully. ${NC}"
 ########################################
 # Preparing Unbound configuration file #
 ########################################
+
 echo
 echo -e "${GREEN}Preparing Unbound configuration file:${NC} unbound.conf"
 
@@ -384,12 +402,15 @@ ask_to_execute_commands() {
                 ############################
                 # Install necesary package #
                 ############################
+                
                 sudo apt install expect -y
+
 
                 ##########################
                 # Perform hw clock check #
                 ##########################
                 sudo hwclock --hctosys
+
 
                 ##############################
                 # Create setupVars.conf file #
@@ -584,6 +605,7 @@ EOF
 
                 sudo ufw allow 80/tcp comment 'Pi-Hole Admin Console'
                 sudo systemctl restart ufw
+                echo
 
 
                 ##############################
@@ -595,9 +617,10 @@ EOF
 
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
-                    echo -e "${GREEN}pihole-install.sh completed successfully.${NC}"
+                    echo
+                    echo -e "${GREEN}Pi-Hole installation completed successfully.${NC}"
                 else
-                    echo -e "pihole-install.sh encountered an error.${NC}"
+                    echo -e "${RED}Pi-Hole installation encountered an error.${NC}"
                 fi
 
                 echo
@@ -638,18 +661,20 @@ echo
 sleep 0.5 # delay for 0.5 seconds
 echo -e "${GREEN}Unbound will listen on all interfaces, access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo -e "${GREEN}One Client Machine (${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
-echo -e "${GREEN}Additional clients must be configured in:${NC} /etc/unboun/unboud.conf"
+echo
+echo -e "${GREEN}Additional Subnet Zone/Clients must be configured in:${NC} /etc/unboun/unboud.conf"
 echo
 echo -e "${GREEN}For queries that cannot be answered locally or from the cache, the Unbound server forwards these queries to upstream DNS servers, ${NC}"
 echo -e "${GREEN}using DNS-over-TLS (DoT) for encryption, enhancing privacy and security.  ${NC}"
 echo -e "${GREEN}It's configured to use reputable DoT providers such as Quad9 (I), Cloudflare (II), and optionally Google (must be enabled) ${NC}"
-
-# Note for the end of the script regarding Pi-Hole
-# Pi-hole Dashboard
-
-echo -e http://$IP_ADDRESS/admin
-
 echo
+echo -e "${GREEN}If you have opted for installing Pi-Hole, then  ${NC}"
+echo -e "${GREEN}Pi-hole will filter and block unwanted internet domains at the DNS level, acting as a network-wide ad blocker, using Unbound in the background ${NC}"
+echo -e "${GREEN}Point your Subnets or individual Clients to Pi-Hole IP Address${NC}"
+echo
+echo -e "${GREEN}Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin "
+echo
+
 
 ##########################
 # Prompt user for reboot #
