@@ -23,7 +23,7 @@ NC='\033[0m'
 #################
 
 echo
-echo -e "${GREEN} This script will install and configure Unbound ${NC}"
+echo -e "${GREEN} This script will install and configure Unbound and, optionaly, Pi-Hole ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
@@ -392,13 +392,13 @@ ask_to_execute_commands() {
     while true; do
         # Prompt the user
         read -p "Do you want to install Pi-Hole alongside Unbound? (yes/no): " answer
-
+        echo
         # Normalize the answer to lower case
         case "${answer,,}" in
             yes|y)
                 echo -e "${GREEN}Executing the specified commands...${NC}"
-                # Placeholder for commands to execute if the user answers 'yes'
-                # Command 1
+                echo
+
                 ############################
                 # Install necesary package #
                 ############################
@@ -421,7 +421,8 @@ ask_to_execute_commands() {
                 file_path="$directory_path/setupVars.conf"
 
                 # Create or overwrite the setupVars.conf file, using sudo for permissions
-                echo -e "Creating file: $file_path"
+                echo
+                echo -e "${GREEN}Creating file:${NC} $file_path"
 
                 sudo tee "$file_path" > /dev/null <<EOF
 PIHOLE_INTERFACE=NET_INT
@@ -440,7 +441,8 @@ REV_SERVER=false
 PIHOLE_DNS_1=127.0.0.1#5335
 PIHOLE_DNS_2=
 EOF
-                echo -e "${GREEN}File created successfully.${NC}"
+                echo
+                echo -e "${GREEN}File${NC} setupVars.conf ${GREEN}created successfully.${NC}"
                 echo
 
 
@@ -548,9 +550,9 @@ EOF
 
                 for job in "$JOB1" "$JOB2"; do
                     if (crontab -l 2>/dev/null; echo "$job") | crontab -; then
-                        echo "Job added to crontab: $job"
+                        echo "${GREEN}Job added to crontab${NC}"
                     else
-                        echo "Error: Unable to append job to crontab: $job"
+                        echo "${RED}Error: Unable to append job to crontab${NC}"
                     fi
                 done
 
@@ -677,7 +679,6 @@ echo
 while true; do
     read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
     case "${response,,}" in
-        echo
         yes|y) echo -e "${GREEN}Rebooting the server...${NC}"; sudo reboot; break ;;
         no|n) echo -e "${RED}Reboot cancelled.${NC}"; exit 0 ;;
         *) echo -e "${YELLOW}Invalid response. Please answer${NC} yes or no." ;;
