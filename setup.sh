@@ -689,3 +689,13 @@ while true; do
         *) echo -e "${YELLOW}Invalid response. Please answer${NC} yes or no." ;;
     esac
 done
+
+#####################################
+# Remove the Script from the system #
+#####################################
+
+echo
+echo -e "${RED}This Script Will Self Destruct!${NC}"
+echo
+# VERY LAST LINE OF THE SCRIPT:
+sudo rm -f "$0" 
