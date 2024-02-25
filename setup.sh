@@ -51,7 +51,7 @@ while true; do
 
     # If user entered anything else, ask them to correct it
     else
-        echo -e "${YELLOW}Invalid input. Please enter 'y' or 'n'. ${NC}"
+        echo -e "${YELLOW}Invalid input. Please enter${NC} 'y' or 'n' "
     fi
 done
 
@@ -59,13 +59,13 @@ done
 ###################
 # Install Unbound #
 ###################
-echo -e "${GREEN} Installing Unbound and other packages ${NC}"
+echo -e "${GREEN}Installing Unbound and other packages ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
 
 if ! sudo apt -y install unbound net-tools tcpdump ca-certificates; then
-    echo "Failed to install packages. Exiting."
+    echo -e "${RED}Failed to install packages. Exiting.${NC}"
     exit 1
 fi
 
@@ -83,18 +83,18 @@ echo
 # Backup the existing /etc/hosts file
 if [ ! -f /etc/hosts.backup ]; then
     sudo cp /etc/hosts /etc/hosts.backup
-    echo -e "${GREEN}Backup of /etc/hosts created.${NC}"
+    echo -e "${GREEN}Backup of${NC} /etc/hosts ${GREEN}created.${NC}"
 else
-    echo -e "${YELLOW}Backup of /etc/hosts already exists. Skipping backup.${NC}"
+    echo -e "${YELLOW}Backup of${NC} /etc/hosts ${YELLOW}already exists. Skipping backup.${NC}"
 fi
 
 # Backup original /etc/cloud/cloud.cfg file before modifications
 CLOUD_CFG="/etc/cloud/cloud.cfg"
 if [ ! -f "$CLOUD_CFG.bak" ]; then
     sudo cp "$CLOUD_CFG" "$CLOUD_CFG.bak"
-    echo -e "${GREEN}Backup of $CLOUD_CFG created.${NC}"
+    echo -e "${GREEN}Backup of${NC} $CLOUD_CFG ${GREEN}created.${NC}"
 else
-    echo -e "${YELLOW}Backup of $CLOUD_CFG already exists. Skipping backup.${NC}"
+    echo -e "${YELLOW}Backup of${NC} $CLOUD_CFG ${YELLOW}already exists. Skipping backup.${NC}"
 fi
 
 # Before modifying Unbound configuration files, create backups if they don't already exist
@@ -106,9 +106,9 @@ UNBOUND_FILES=(
 for file in "${UNBOUND_FILES[@]}"; do
     if [ ! -f "$file.backup" ]; then
         sudo cp "$file" "$file.backup"
-        echo -e "${GREEN}Backup of $file created.${NC}"
+        echo -e "${GREEN}Backup of${NC} $file ${GREEN}created.${NC}"
     else
-        echo -e "${YELLOW}Backup of $file already exists. Skipping backup.${NC}"
+        echo -e "${YELLOW}Backup of${NC} $file ${YELLOW}already exists. Skipping backup.${NC}"
     fi
 done
 
@@ -130,7 +130,7 @@ sudo sed -i '/^\s*- set_hostname/ s/^/#/' "$FILE_PATH"
 sudo sed -i '/^\s*- update_hostname/ s/^/#/' "$FILE_PATH"
 sudo sed -i '/^\s*- update_etc_hosts/ s/^/#/' "$FILE_PATH"
 
-echo -e "${GREEN}Modifications to $FILE_PATH applied successfully.${NC}"
+echo -e "${GREEN}Modifications to${NC} $FILE_PATH ${GREEN}applied successfully.${NC}"
 
 
 ######################
@@ -147,7 +147,7 @@ DOMAIN_NAME=$(grep '^domain' /etc/resolv.conf | awk '{print $2}')
 
 # Check if DOMAIN_NAME has a value
 if [ -z "$DOMAIN_NAME" ]; then
-    echo "${RED}Could not determine the domain name from /etc/resolv.conf. Skipping operations that require the domain name.${NC}"
+    echo -e "${RED}Could not determine the domain name from${NC} /etc/resolv.conf ${RED}Skipping operations that require the domain name.${NC}"
 else
     # Continue with operations that require DOMAIN_NAME
     # Identify the host's primary IP address and hostname
@@ -156,12 +156,12 @@ else
 
     # Skip /etc/hosts update if HOST_IP or HOST_NAME are not determined
     if [ -z "$HOST_IP" ] || [ -z "$HOST_NAME" ]; then
-        echo -e "${RED}Could not determine the host IP address or hostname. Skipping /etc/hosts update${NC}"
+        echo -e "${RED}Could not determine the host IP address or hostname. Skipping${NC} /etc/hosts ${RED}update${NC}"
     else
         # Display the extracted domain name, host IP, and hostname
-        echo -e "${GREEN}Domain name: $DOMAIN_NAME${NC}"
-        echo -e "${GREEN}Host IP: $HOST_IP${NC}"
-        echo -e "${GREEN}Hostname: $HOST_NAME${NC}"
+        echo -e "${GREEN}Domain name:${NC} $DOMAIN_NAME"
+        echo -e "${GREEN}Host IP:${NC} $HOST_IP"
+        echo -e "${GREEN}Hostname:${NC} $HOST_NAME"
 
         # Remove any existing lines with the current hostname in /etc/hosts
         sudo sed -i "/$HOST_NAME/d" /etc/hosts
@@ -172,7 +172,7 @@ else
         # Insert the new line directly below the 127.0.0.1 localhost line
         sudo awk -v newline="$NEW_LINE" '/^127.0.0.1 localhost$/ { print; print newline; next }1' /etc/hosts | sudo tee /etc/hosts.tmp > /dev/null && sudo mv /etc/hosts.tmp /etc/hosts
         echo
-        echo -e "${GREEN}File /etc/hosts has been updated.${NC}"
+        echo -e "${GREEN}File${NC} /etc/hosts ${GREEN}has been updated.${NC}"
     fi
 
     # Continue with any other operations that require DOMAIN_NAME
@@ -222,7 +222,7 @@ echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && s
 # Modify dhclient.conf file #
 #############################
 echo
-echo -e "${GREEN}Modifying dhclient.conf file (automaticaly overwriteing resolve.conf) ${NC}"
+echo -e "${GREEN}Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
@@ -232,14 +232,14 @@ DHCLIENT_CONF="/etc/dhcp/dhclient.conf"
 
 # Check if the dhclient.conf file exists
 if [ ! -f "$DHCLIENT_CONF" ]; then
-    echo -e "${RED}Error: $DHCLIENT_CONF does not exist. ${NC}"
+    echo -e "${RED}Error:${NC} $DHCLIENT_CONF ${RED}does not exist. ${NC}"
     exit 1
 fi
 
 # Backup the original file before making changes
 sudo cp $DHCLIENT_CONF "${DHCLIENT_CONF}.bak"
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Error: Failed to backup the original dhclient.conf file. ${NC}"
+    echo -e "${RED}Error: Failed to backup the original${NC} dhclient.conf ${RED}file. ${NC}"
     exit 1
 fi
 
@@ -273,7 +273,7 @@ fi
 # Now, find the line with the machine's IP address and add the 127.0.0.1 below it
 sudo sed -i "/^prepend domain-name-servers ${IP_ADDRESS};/a prepend domain-name-servers 127.0.0.1;" $DHCLIENT_CONF
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Error: Failed to insert the 127.0.0.1 address below the machine's IP address. ${NC}"
+    echo -e "${RED}Error: Failed to insert the${NC} 127.0.0.1 ${RED}address below the machine's IP address. ${NC}"
     exit 1
 fi
 
@@ -284,7 +284,7 @@ echo -e "${GREEN}Modifications completed successfully. ${NC}"
 # Preparing Unbound configuration file #
 ########################################
 echo
-echo -e "${GREEN}Preparing Unbound configuration file (unbound.conf) ${NC}"
+echo -e "${GREEN}Preparing Unbound configuration file:${NC} unbound.conf"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
@@ -311,7 +311,7 @@ while true; do
   if echo "$LOCAL_SUBNET_ACCESS" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$'; then
     break
   else
-    echo -e "${RED}Error: Subnet format is invalid. Please enter a valid CIDR notation. ${NC}"
+    echo -e "${RED}Error: Subnet format is invalid. Please enter a valid${NC} CIDR ${RED}notation. ${NC}"
   fi
 done
 
@@ -331,7 +331,7 @@ while true; do
   if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
     break
   else
-    echo -e "${RED}Error: IP Address format is invalid. Please enter a valid IPv4 address. ${NC}"
+    echo -e "${RED}Error: IP Address format is invalid. Please enter a valid${NC} IPv4 ${RED}address. ${NC}"
   fi
 done
 
@@ -378,7 +378,7 @@ ask_to_execute_commands() {
         # Normalize the answer to lower case
         case "${answer,,}" in
             yes|y)
-                echo "Executing the specified commands..."
+                echo -e "${GREEN}Executing the specified commands...${NC}"
                 # Placeholder for commands to execute if the user answers 'yes'
                 # Command 1
                 ############################
@@ -400,7 +400,7 @@ ask_to_execute_commands() {
                 file_path="$directory_path/setupVars.conf"
 
                 # Create or overwrite the setupVars.conf file, using sudo for permissions
-                echo "Creating file: $file_path"
+                echo -e "Creating file: $file_path"
 
                 sudo tee "$file_path" > /dev/null <<EOF
 PIHOLE_INTERFACE=NET_INT
@@ -419,7 +419,8 @@ REV_SERVER=false
 PIHOLE_DNS_1=127.0.0.1#5335
 PIHOLE_DNS_2=
 EOF
-                echo "File created successfully."
+                echo -e "${GREEN}File created successfully.${NC}"
+                echo
 
 
                 #################################################################################
@@ -449,19 +450,21 @@ EOF
                 # Loop until a valid password is entered
                 while true; do
                     # Prompt the user for a password
-                    echo "Please enter the password you would like to hash (min 6 characters):"
+                    echo -e "${GREEN}Please enter the Pi-Hole Web Admin Password (min 6 characters):${NC}"
                     read -s -p "Password: " user_password
                     echo
 
                     # Check if the password is empty
                     if [ -z "$user_password" ]; then
-                        echo "Error: No password entered. Please try again."
+                        echo -e "${RED}: No password entered. Please try again.${NC}"
+                        echo
                         continue
                     fi
 
                     # Check if the password length is less than 6 characters
                     if [ ${#user_password} -lt 6 ]; then
-                        echo "Error: Password must be at least 6 characters long. Please try again."
+                        echo -e "${RED}Error: Password must be at least 6 characters long. Please try again.${NC}"
+                        echo
                         continue
                     fi
 
@@ -470,10 +473,11 @@ EOF
 
                     # Password meets the requirements; generate double hash
                     hash=$(generate_double_sha256_hash "$user_password")
-                    #echo "Generated hash: $hash"
 
                     # Save Password Hash for debugging 
+                    echo
                     echo "$hash" > "webadmin_password_hash.txt"
+                    echo
 
                     # Replace the placeholder in the configuration file
                     replace_placeholder "$hash"
@@ -504,11 +508,11 @@ EOF
                 network_interface=$(identify_network_interface)
 
                 if [ -n "$network_interface" ]; then
-                    echo "Primary network interface identified: $network_interface"
+                    echo -e "${GREEN}Primary network interface identified:${NC} $network_interface"
                     # Replace the placeholder in the configuration file
                     replace_placeholder "$network_interface"
                 else
-                    echo "Error: Failed to identify the primary network interface." >&2
+                    echo "${RED}Error: Failed to identify the primary network interface." >&2
                 fi
 
 
@@ -527,9 +531,9 @@ EOF
                     if ! crontab -l | grep -F -- "$job" &>/dev/null; then
                         # Append the job to the crontab
                         (crontab -l 2>/dev/null; echo "$job") | crontab -
-                        echo "Added to crontab: $job"
+                        echo -e "${GREEN}Added to crontab:${NC} $job"
                     else
-                        echo "Already in crontab: $job"
+                        echo -e "${YELLOW}Already in crontab:${NC} $job"
                     fi
                 }
 
@@ -545,18 +549,18 @@ EOF
                 # Attempt to create the directory
                 sudo mkdir -p /etc/pihole
                 if [ $? -eq 0 ]; then
-                    echo "Directory /etc/pihole created or already exists."
+                    echo -e "${YELLOW}Directory${NC} /etc/pihole ${YELLOW}created or already exists.${NC}"
                 else
-                    echo "Failed to create /etc/pihole directory."
+                    echo -e "${RED}Failed to create${NC} /etc/pihole ${RED}directory.${NC}"
                     exit 1
                 fi
 
                 # Attempt to copy the file
                 sudo cp setupVars.conf /etc/pihole/setupVars.conf
                 if [ $? -eq 0 ]; then
-                    echo "File copied successfully."
+                    echo -e "${GREEN}File copied successfully.${NC}"
                 else
-                    echo "Failed to copy file."
+                    echo -e "${RED}Failed to copy file.${NC}"
                     exit 1
                 fi
 
@@ -573,7 +577,7 @@ EOF
                 ####################
 
                 echo
-                echo -e "${GREEN} Preparing firewall for Pi-Hole Admin Console ${NC}"
+                echo -e "${GREEN}Preparing firewall for Pi-Hole Admin Console ${NC}"
 
                 sleep 0.5 # delay for 0.5 seconds
                 echo
@@ -591,9 +595,9 @@ EOF
 
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
-                    echo "pihole-install.sh completed successfully."
+                    echo -e "${GREEN}pihole-install.sh completed successfully.${NC}"
                 else
-                    echo "pihole-install.sh encountered an error."
+                    echo -e "pihole-install.sh encountered an error.${NC}"
                 fi
 
                 echo
@@ -601,11 +605,11 @@ EOF
                 break # Exit the loop after executing the commands
                 ;;
             no|n)
-                echo "Skipping Pi-Hole installation"
+                echo -e "${YELLOW}Skipping Pi-Hole installation${NC}"
                 break # Exit the loop and continue with the rest of the script
                 ;;
             *)
-                echo "Error: Please answer 'yes' or 'no'."
+                echo -e "${RED}Error: Please answer${NC} 'yes' or 'no' "
                 ;;
         esac
     done
@@ -643,7 +647,7 @@ echo -e "${GREEN}It's configured to use reputable DoT providers such as Quad9 (I
 # Note for the end of the script regarding Pi-Hole
 # Pi-hole Dashboard
 
-echo http://$IP_ADDRESS/admin
+echo -e http://$IP_ADDRESS/admin
 
 echo
 
