@@ -6,11 +6,6 @@ set timeout 120
 spawn /bin/bash -c "curl -sSL https://install.pi-hole.net | sudo bash"
 
 # Example handling of the installation script prompts
-#expect "Update" {
-#    send "yes\r"
-#}
-
-# Example handling of the installation script prompts
 expect "Existing Install Detected" {
     send "yes\r"
 }
