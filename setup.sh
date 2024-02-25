@@ -643,12 +643,16 @@ ask_to_execute_commands
 ##############################
 # Replace configuration file #
 ##############################
-echo -e "${GREEN}Replacing existing Unbound configuration file (unbound.conf) ${NC}"
+echo -e "${GREEN}Replacing existing Unbound configuration file"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-sudo cp unbound.conf /etc/unbound/unbound.conf
+if sudo cp unbound.conf /etc/unbound/unbound.conf; then
+    echo "${GREEN}File${NC} unbound.conf ${GREEN}copied successfully. ${NC}"
+else
+    echo "${RED}Error: Failed to copy file${NC} unbound.conf ${RED}to${NC} /etc/unbound/ ${NC}"
+fi
 
 
 ##########################
@@ -673,7 +677,10 @@ echo -e "${GREEN}acting as a network-wide ad blocker, using Unbound in the backg
 echo
 echo -e "${GREEN}Point your Subnets or individual Clients to Pi-Hole IP Address${NC}"
 echo
-echo -e "${GREEN}Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin "
+echo -e "${GREEN}Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
+echo -e "${GREEN}If Local Domanin and Local A Records are properly configured in Unbound, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
+echo
+echo
 echo
 
 
