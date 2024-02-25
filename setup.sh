@@ -41,7 +41,7 @@ echo
 ######################################
 
 while true; do
-    echo -e "${GREEN}Start Unbound installation and configuration? (y/n) ${NC}"
+    echo -e "${GREEN}Start installation and configuration? (y/n) ${NC}"
     read choice
 
     # Check if user entered "y" or "Y"
@@ -319,7 +319,7 @@ fi
 # Replace DOMAIN_NAME placeholder in unbound.conf with the extracted domain name
 sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
-echo -e "${GREEN}Domain name $DOMAIN_NAME_LOCAL has been set in ${NC} unbound.conf"
+echo -e "${GREEN}Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} unbound.conf"
 echo
 # User input
 
@@ -530,6 +530,7 @@ EOF
 
                 if [ -n "$network_interface" ]; then
                     echo -e "${GREEN}Primary network interface identified:${NC} $network_interface"
+                    echo
                     # Replace the placeholder in the configuration file
                     replace_placeholder "$network_interface"
                 else
@@ -541,26 +542,17 @@ EOF
                 # Set Pi-Hole automatic update #
                 ################################
 
-                # Define the cron jobs
+                # Set Pi-Hole automatic update cron jobs
                 JOB1="0 2 1 * * pihole -up"
                 JOB2="0 3 1 * * pihole -g"
 
-                # Function to add a job if it doesn't already exist
-                add_cron_job() {
-                    local job="$1"
-                    # Check if the job is already in the crontab; add it if it's not
-                    if ! crontab -l | grep -F -- "$job" &>/dev/null; then
-                        # Append the job to the crontab
-                        (crontab -l 2>/dev/null; echo "$job") | crontab -
-                        echo -e "${GREEN}Added to crontab:${NC} $job"
+                for job in "$JOB1" "$JOB2"; do
+                    if (crontab -l 2>/dev/null; echo "$job") | crontab -; then
+                        echo "Job added to crontab: $job"
                     else
-                        echo -e "${YELLOW}Already in crontab:${NC} $job"
+                        echo "Error: Unable to append job to crontab: $job"
                     fi
-                }
-
-                # Add the cron jobs
-                add_cron_job "$JOB1"
-                add_cron_job "$JOB2"
+                done
 
 
                 #####################################
@@ -570,7 +562,7 @@ EOF
                 # Attempt to create the directory
                 sudo mkdir -p /etc/pihole
                 if [ $? -eq 0 ]; then
-                    echo -e "${YELLOW}Directory${NC} /etc/pihole ${YELLOW}created or already exists.${NC}"
+                    echo -e "${GREEN}Directory${NC} /etc/pihole ${GREEN}created or already exists.${NC}"
                 else
                     echo -e "${RED}Failed to create${NC} /etc/pihole ${RED}directory.${NC}"
                     exit 1
@@ -579,6 +571,7 @@ EOF
                 # Attempt to copy the file
                 sudo cp setupVars.conf /etc/pihole/setupVars.conf
                 if [ $? -eq 0 ]; then
+                    echo
                     echo -e "${GREEN}File copied successfully.${NC}"
                 else
                     echo -e "${RED}Failed to copy file.${NC}"
@@ -669,7 +662,8 @@ echo -e "${GREEN}using DNS-over-TLS (DoT) for encryption, enhancing privacy and 
 echo -e "${GREEN}It's configured to use reputable DoT providers such as Quad9 (I), Cloudflare (II), and optionally Google (must be enabled) ${NC}"
 echo
 echo -e "${GREEN}If you have opted for installing Pi-Hole, then  ${NC}"
-echo -e "${GREEN}Pi-hole will filter and block unwanted internet domains at the DNS level, acting as a network-wide ad blocker, using Unbound in the background ${NC}"
+echo -e "${GREEN}Pi-hole will filter and block unwanted internet domains at the DNS level, acting as a network-wide ad blocker, ${NC}"
+echo -e "${GREEN}using Unbound in the background ${NC}"
 echo -e "${GREEN}Point your Subnets or individual Clients to Pi-Hole IP Address${NC}"
 echo
 echo -e "${GREEN}Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin "
@@ -683,6 +677,7 @@ echo
 while true; do
     read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
     case "${response,,}" in
+        echo
         yes|y) echo -e "${GREEN}Rebooting the server...${NC}"; sudo reboot; break ;;
         no|n) echo -e "${RED}Reboot cancelled.${NC}"; exit 0 ;;
         *) echo -e "${YELLOW}Invalid response. Please answer${NC} yes or no." ;;
