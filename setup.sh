@@ -365,6 +365,255 @@ echo -e "${GREEN}Configuration file updated successfully. ${NC}"
 echo
 
 
+#############################
+# Option to install Pi-Hole #
+#############################
+
+# Function to ask the user if they want to Install Pi-Hole
+ask_to_execute_commands() {
+    while true; do
+        # Prompt the user
+        read -p "Do you want to install Pi-Hole alongside Unbound? (yes/no): " answer
+
+        # Normalize the answer to lower case
+        case "${answer,,}" in
+            yes|y)
+                echo "Executing the specified commands..."
+                # Placeholder for commands to execute if the user answers 'yes'
+                # Command 1
+                ############################
+                # Install necesary package #
+                ############################
+                sudo apt install expect -y
+
+                ##########################
+                # Perform hw clock check #
+                ##########################
+                sudo hwclock --hctosys
+
+                ##############################
+                # Create setupVars.conf file #
+                ##############################
+
+                # Define the path to the directory and the file
+                directory_path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+                file_path="$directory_path/setupVars.conf"
+
+                # Create or overwrite the setupVars.conf file, using sudo for permissions
+                echo "Creating file: $file_path"
+
+                sudo tee "$file_path" > /dev/null <<EOF
+PIHOLE_INTERFACE=NET_INT
+QUERY_LOGGING=true
+INSTALL_WEB_SERVER=true
+INSTALL_WEB_INTERFACE=true
+LIGHTTPD_ENABLED=true
+CACHE_SIZE=10000
+DNS_FQDN_REQUIRED=true
+DNS_BOGUS_PRIV=true
+DNSMASQ_LISTENING=single
+WEBPASSWORD=SHA-256
+BLOCKING_ENABLED=true
+DNSSEC=false
+REV_SERVER=false
+PIHOLE_DNS_1=127.0.0.1#5335
+PIHOLE_DNS_2=
+EOF
+                echo "File created successfully."
+
+
+                #################################################################################
+                # replace SHA-256 hash placeholder with User defined Password in setupVars.conf #
+                #################################################################################
+
+                # Path to the configuration file
+                config_file="setupVars.conf"
+
+                # Function to generate double SHA-256 hash
+                generate_double_sha256_hash() {
+                    # First SHA-256 hash
+                    local hashed_pw=$(echo -n "$1" | sha256sum | sed 's/\s.*$//')
+
+                    # Second SHA-256 hash
+                    local double_hashed_pw=$(echo -n "${hashed_pw}" | sha256sum | sed 's/\s.*$//')
+
+                    echo "${double_hashed_pw}" # Return the double hashed password
+                }
+
+                # Function to replace the placeholder in the configuration file
+                replace_placeholder() {
+                    local hash=$1
+                    sed -i "s/SHA-256/$hash/" "$config_file" || echo "Error: Failed to replace the placeholder in $config_file." >&2
+                }
+
+                # Loop until a valid password is entered
+                while true; do
+                    # Prompt the user for a password
+                    echo "Please enter the password you would like to hash (min 6 characters):"
+                    read -s -p "Password: " user_password
+                    echo
+
+                    # Check if the password is empty
+                    if [ -z "$user_password" ]; then
+                        echo "Error: No password entered. Please try again."
+                        continue
+                    fi
+
+                    # Check if the password length is less than 6 characters
+                    if [ ${#user_password} -lt 6 ]; then
+                        echo "Error: Password must be at least 6 characters long. Please try again."
+                        continue
+                    fi
+
+                    # Save user Web Admin Console Password in case you forgot
+                    echo "$user_password" > "webadmin_password.txt" 
+
+                    # Password meets the requirements; generate double hash
+                    hash=$(generate_double_sha256_hash "$user_password")
+                    #echo "Generated hash: $hash"
+
+                    # Save Password Hash for debugging 
+                    echo "$hash" > "webadmin_password_hash.txt"
+
+                    # Replace the placeholder in the configuration file
+                    replace_placeholder "$hash"
+                    break # Exit the loop after successful operation
+                done
+
+
+                ###############################################################################
+                # replace NET_INT placeholder with primary network interfac in setupVars.conf #
+                ###############################################################################
+
+                # Path to the configuration file
+                config_file="setupVars.conf"
+
+                # Function to identify the primary network interface
+                identify_network_interface() {
+                    # This command finds the primary network interface used for the default route
+                    ip route | grep default | awk '{print $5}' | head -n 1
+                }
+
+                # Function to replace the placeholder in the configuration file
+                replace_placeholder() {
+                    local net_interface=$1
+                    sed -i "s/NET_INT/$net_interface/" "$config_file" || echo "Error: Failed to replace the placeholder in $config_file." >&2
+                }
+
+                # Identify the network interface
+                network_interface=$(identify_network_interface)
+
+                if [ -n "$network_interface" ]; then
+                    echo "Primary network interface identified: $network_interface"
+                    # Replace the placeholder in the configuration file
+                    replace_placeholder "$network_interface"
+                else
+                    echo "Error: Failed to identify the primary network interface." >&2
+                fi
+
+
+                ################################
+                # Set Pi-Hole automatic update #
+                ################################
+
+                # Define the cron jobs
+                JOB1="0 2 1 * * pihole -up"
+                JOB2="0 3 1 * * pihole -g"
+
+                # Function to add a job if it doesn't already exist
+                add_cron_job() {
+                    local job="$1"
+                    # Check if the job is already in the crontab; add it if it's not
+                    if ! crontab -l | grep -F -- "$job" &>/dev/null; then
+                        # Append the job to the crontab
+                        (crontab -l 2>/dev/null; echo "$job") | crontab -
+                        echo "Added to crontab: $job"
+                    else
+                        echo "Already in crontab: $job"
+                    fi
+                }
+
+                # Add the cron jobs
+                add_cron_job "$JOB1"
+                add_cron_job "$JOB2"
+
+
+                #####################################
+                # Copy prepared setupVars.conf file #
+                #####################################
+
+                # Attempt to create the directory
+                sudo mkdir -p /etc/pihole
+                if [ $? -eq 0 ]; then
+                    echo "Directory /etc/pihole created or already exists."
+                else
+                    echo "Failed to create /etc/pihole directory."
+                    exit 1
+                fi
+
+                # Attempt to copy the file
+                sudo cp setupVars.conf /etc/pihole/setupVars.conf
+                if [ $? -eq 0 ]; then
+                    echo "File copied successfully."
+                else
+                    echo "Failed to copy file."
+                    exit 1
+                fi
+
+
+                ###########################################
+                # Adjust the port nummber in unbound.conf #
+                ###########################################
+
+                sudo sed -i 's/port: 53/port: 5335/' unbound.conf
+
+
+                ####################
+                # Prepare Firewall #
+                ####################
+
+                echo
+                echo -e "${GREEN} Preparing firewall for Pi-Hole Admin Console ${NC}"
+
+                sleep 0.5 # delay for 0.5 seconds
+                echo
+
+                sudo ufw allow 80/tcp comment 'Pi-Hole Admin Console'
+                sudo systemctl restart ufw
+
+
+                ##############################
+                # Run Pi-Hole install Script #
+                ##############################
+
+                # Script is executable and has a shebang line
+                ./pihole-install.sh
+
+                # Check the exit status of the last command
+                if [ $? -eq 0 ]; then
+                    echo "pihole-install.sh completed successfully."
+                else
+                    echo "pihole-install.sh encountered an error."
+                fi
+
+                echo
+                # ...
+                break # Exit the loop after executing the commands
+                ;;
+            no|n)
+                echo "Skipping Pi-Hole installation"
+                break # Exit the loop and continue with the rest of the script
+                ;;
+            *)
+                echo "Error: Please answer 'yes' or 'no'."
+                ;;
+        esac
+    done
+}
+
+# Call the function
+ask_to_execute_commands
+
 ##############################
 # Replace configuration file #
 ##############################
@@ -390,6 +639,11 @@ echo
 echo -e "${GREEN}For queries that cannot be answered locally or from the cache, the Unbound server forwards these queries to upstream DNS servers, ${NC}"
 echo -e "${GREEN}using DNS-over-TLS (DoT) for encryption, enhancing privacy and security.  ${NC}"
 echo -e "${GREEN}It's configured to use reputable DoT providers such as Quad9 (I), Cloudflare (II), and optionally Google (must be enabled) ${NC}"
+
+# Note for the end of the script regarding Pi-Hole
+# Pi-hole Dashboard
+
+echo http://$IP_ADDRESS/admin
 
 echo
 
