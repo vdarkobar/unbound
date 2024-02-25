@@ -697,12 +697,13 @@ while true; do
     esac
 done
 
-#####################################
-# Remove the Script from the system #
-#####################################
+########################################
+# Remove the Script(s) from the system #
+########################################
 
 echo
 echo -e "${RED}This Script Will Self Destruct!${NC}"
 echo
+udo rm -f pihole-install.sh
 # VERY LAST LINE OF THE SCRIPT:
 sudo rm -f "$0" 
