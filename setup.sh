@@ -357,6 +357,8 @@ echo
 
 sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
+sleep 0.5 # delay for 0.5 seconds
+
 # Attempt to replace placeholders in unbound.conf
 if sed -i "s:LOCAL_SUBNET_ACCESS:$LOCAL_SUBNET_ACCESS:g" unbound.conf; then
   echo -e "${GREEN}Local Subnet applied successfully. ${NC}"
@@ -382,6 +384,7 @@ fi
 echo -e "${GREEN}Configuration file updated successfully. ${NC}"
 echo
 
+sleep 1 # delay for 1 seconds
 
 #############################
 # Option to install Pi-Hole #
@@ -396,7 +399,7 @@ ask_to_execute_commands() {
         # Normalize the answer to lower case
         case "${answer,,}" in
             yes|y)
-                echo -e "${GREEN}Executing the specified commands...${NC}"
+                echo -e "${GREEN}Preconfiguring and installing Pi-Hole...${NC}"
                 echo
 
                 ############################
@@ -550,9 +553,9 @@ EOF
 
                 for job in "$JOB1" "$JOB2"; do
                     if (crontab -l 2>/dev/null; echo "$job") | crontab -; then
-                        echo -e "${GREEN}Job added to crontab${NC}"
+                        echo -e "${GREEN}Job added to${NC} crontab"
                     else
-                        echo -e "${RED}Error: Unable to append job to crontab${NC}"
+                        echo -e "${RED}Error: Unable to append job to${NC} crontab"
                     fi
                 done
 
