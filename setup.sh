@@ -536,7 +536,7 @@ EOF
                     # Replace the placeholder in the configuration file
                     replace_placeholder "$network_interface"
                 else
-                    echo "${RED}Error: Failed to identify the primary network interface." >&2
+                    echo -e "${RED}Error: Failed to identify the primary network interface." >&2
                 fi
 
 
@@ -550,12 +550,13 @@ EOF
 
                 for job in "$JOB1" "$JOB2"; do
                     if (crontab -l 2>/dev/null; echo "$job") | crontab -; then
-                        echo "${GREEN}Job added to crontab${NC}"
+                        echo -e "${GREEN}Job added to crontab${NC}"
                     else
-                        echo "${RED}Error: Unable to append job to crontab${NC}"
+                        echo -e "${RED}Error: Unable to append job to crontab${NC}"
                     fi
                 done
 
+                echo
 
                 #####################################
                 # Copy prepared setupVars.conf file #
@@ -657,15 +658,16 @@ sleep 0.5 # delay for 0.5 seconds
 echo -e "${GREEN}Unbound will listen on all interfaces, access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo -e "${GREEN}One Client Machine (${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
 echo
-echo -e "${GREEN}Additional Subnet Zone/Clients must be configured in:${NC} /etc/unboun/unboud.conf"
+echo -e "${GREEN}Additional Subnet Zones/Clients must be configured in:${NC} /etc/unboun/unboud.conf"
 echo
 echo -e "${GREEN}For queries that cannot be answered locally or from the cache, the Unbound server forwards these queries to upstream DNS servers, ${NC}"
 echo -e "${GREEN}using DNS-over-TLS (DoT) for encryption, enhancing privacy and security.  ${NC}"
 echo -e "${GREEN}It's configured to use reputable DoT providers such as Quad9 (I), Cloudflare (II), and optionally Google (must be enabled) ${NC}"
 echo
 echo -e "${GREEN}If you have opted for installing Pi-Hole, then  ${NC}"
-echo -e "${GREEN}Pi-hole will filter and block unwanted internet domains at the DNS level, acting as a network-wide ad blocker, ${NC}"
-echo -e "${GREEN}using Unbound in the background ${NC}"
+echo -e "${GREEN}Pi-hole will filter and block unwanted internet domains at the DNS level,  ${NC}"
+echo -e "${GREEN}acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
+echo
 echo -e "${GREEN}Point your Subnets or individual Clients to Pi-Hole IP Address${NC}"
 echo
 echo -e "${GREEN}Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin "
