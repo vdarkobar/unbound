@@ -13,3 +13,11 @@ expect "Existing Install Detected" {
 # Continue with other prompts as necessary
 
 expect eof
+
+# Remove the Script from the system
+
+echo
+echo -e "${RED}This Script Will Self Destruct!${NC}"
+echo
+# VERY LAST LINE OF THE SCRIPT:
+sudo rm -f "$0" 
