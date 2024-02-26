@@ -5,7 +5,6 @@ clear
 ##############################################################
 # Define ANSI escape sequence for green, red and yellow font #
 ##############################################################
-
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
@@ -14,14 +13,12 @@ YELLOW='\033[0;33m'
 ########################################################
 # Define ANSI escape sequence to reset font to default #
 ########################################################
-
 NC='\033[0m'
 
 
 #################
 # Intro message #
 #################
-
 echo
 echo -e "${GREEN} This script will install and configure Unbound and, optionaly, Pi-Hole ${NC}"
 
@@ -39,7 +36,6 @@ echo
 ######################################
 # Prompt user to confirm script start#
 ######################################
-
 while true; do
     echo -e "${GREEN}Start installation and configuration? (y/n) ${NC}"
     read choice
@@ -68,7 +64,6 @@ done
 ###################
 # Install Unbound #
 ###################
-
 echo -e "${GREEN}Installing Unbound and other packages ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -83,7 +78,6 @@ fi
 #######################
 # Create backup files #
 #######################
-
 echo
 echo -e "${GREEN} Creating backup files ${NC}"
 
@@ -126,7 +120,6 @@ done
 #######################
 # Edit cloud.cfg file #
 #######################
-
 echo
 echo -e "${GREEN} Preventing Cloud-init of rewritining hosts file ${NC}"
 
@@ -147,7 +140,6 @@ echo -e "${GREEN}Modifications to${NC} $FILE_PATH ${GREEN}applied successfully.$
 ######################
 # Prepare hosts file #
 ######################
-
 echo
 echo -e "${GREEN} Setting up hosts file ${NC}"
 
@@ -194,7 +186,6 @@ fi
 ####################
 # Prepare firewall #
 ####################
-
 echo
 echo -e "${GREEN} Preparing firewall ${NC}"
 
@@ -210,7 +201,6 @@ sudo systemctl restart ufw
 #####################
 # Update root hints #
 #####################
-
 echo
 echo -e "${GREEN} Updating root hints file ${NC}"
 
@@ -224,7 +214,6 @@ echo
 ##############################
 # Improve avg response times #
 ##############################
-
 echo
 echo -e "${GREEN} Adding options to sysctl.conf file ${NC}"
 
@@ -237,7 +226,6 @@ echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && s
 #############################
 # Modify dhclient.conf file #
 #############################
-
 echo
 echo -e "${GREEN}Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
 
@@ -300,7 +288,6 @@ echo -e "${GREEN}Modifications completed successfully. ${NC}"
 ########################################
 # Preparing Unbound configuration file #
 ########################################
-
 echo
 echo -e "${GREEN}Preparing Unbound configuration file:${NC} unbound.conf"
 
@@ -389,7 +376,6 @@ sleep 1 # delay for 1 seconds
 #############################
 # Option to install Pi-Hole #
 #############################
-
 # Function to ask the user if they want to Install Pi-Hole
 ask_to_execute_commands() {
     while true; do
@@ -402,23 +388,16 @@ ask_to_execute_commands() {
                 echo -e "${GREEN}Preconfiguring and installing Pi-Hole...${NC}"
                 echo
 
-                ############################
-                # Install necesary package #
-                ############################
-                
+                #######################################################
+                # Install necesary package and perform hw clock check #
+                #######################################################
                 sudo apt install expect -y
-
-
-                ##########################
-                # Perform hw clock check #
-                ##########################
                 sudo hwclock --hctosys
 
 
                 ##############################
                 # Create setupVars.conf file #
                 ##############################
-
                 # Define the path to the directory and the file
                 directory_path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
                 file_path="$directory_path/setupVars.conf"
@@ -452,7 +431,6 @@ EOF
                 #################################################################################
                 # replace SHA-256 hash placeholder with User defined Password in setupVars.conf #
                 #################################################################################
-
                 # Path to the configuration file
                 config_file="setupVars.conf"
 
@@ -514,7 +492,6 @@ EOF
                 ###############################################################################
                 # replace NET_INT placeholder with primary network interfac in setupVars.conf #
                 ###############################################################################
-
                 # Path to the configuration file
                 config_file="setupVars.conf"
 
@@ -546,7 +523,6 @@ EOF
                 ################################
                 # Set Pi-Hole automatic update #
                 ################################
-
                 # Set Pi-Hole automatic update cron jobs
                 JOB1="0 2 1 * * pihole -up"
                 JOB2="0 3 1 * * pihole -g"
@@ -564,7 +540,6 @@ EOF
                 #####################################
                 # Copy prepared setupVars.conf file #
                 #####################################
-
                 # Attempt to create the directory
                 sudo mkdir -p /etc/pihole
                 if [ $? -eq 0 ]; then
@@ -588,14 +563,22 @@ EOF
                 ###########################################
                 # Adjust the port nummber in unbound.conf #
                 ###########################################
+                echo
+                echo -e "${GREEN}Adjusting Unbound port for Pi-Hole.${NC}"
 
-                sudo sed -i 's/port: 53/port: 5335/' unbound.conf
+                sleep 0.5 # delay for 0.5 seconds
+                echo
+
+                if sudo sed -i 's/port: 53/port: 5335/' unbound.conf; then
+                    echo -e "${GREEN}Configuration update successfully applied to${NC} unbound.conf"
+                else
+                    echo -e "${RED}Error: Failed to update configuration in${NC} unbound.conf"
+                fi
 
 
                 ####################
                 # Prepare Firewall #
                 ####################
-
                 echo
                 echo -e "${GREEN}Preparing firewall for Pi-Hole Admin Console ${NC}"
 
@@ -610,7 +593,6 @@ EOF
                 ##############################
                 # Run Pi-Hole install Script #
                 ##############################
-
                 # Script is executable and has a shebang line
                 ./pihole-install.sh
 
@@ -658,27 +640,30 @@ fi
 ##########################
 # Info befor reboot #
 ##########################
-
+echo
 echo -e "${GREEN}REMEMBER: ${NC}"
 echo
 sleep 0.5 # delay for 0.5 seconds
-echo -e "${GREEN}Unbound will listen on all interfaces, access is limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
-echo -e "${GREEN}One Client Machine (${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
+echo -e "${GREEN} Unbound will listen on all interfaces, with access limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
+echo -e "${GREEN} One Local A Record(${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
 echo
-echo -e "${GREEN}Additional Subnet Zones/Clients must be configured in:${NC} /etc/unboun/unboud.conf"
+echo -e "${GREEN} Additional Subnet Zones/Local A Records must be configured in:${NC} /etc/unboun/unboud.conf"
 echo
-echo -e "${GREEN}For queries that cannot be answered locally or from the cache, the Unbound server forwards these queries to upstream DNS servers, ${NC}"
-echo -e "${GREEN}using DNS-over-TLS (DoT) for encryption, enhancing privacy and security.  ${NC}"
-echo -e "${GREEN}It's configured to use reputable DoT providers such as Quad9 (I), Cloudflare (II), and optionally Google (must be enabled) ${NC}"
+echo -e "${GREEN} Queries that cannot be answered locally Unbound will forward to upstream DNS servers, ${NC}"
+echo -e "${GREEN} using DNS-over-TLS (DoT) for encryption, enhancing privacy and security.  ${NC}"
+echo -e "${GREEN} Forwarders:${NC} Quad9${GREEN},${NC} Cloudflare${GREEN}, and optionally${NC} Google ${GREEN}(must be enabled) ${NC}"
 echo
-echo -e "${GREEN}If you have opted for installing Pi-Hole, then  ${NC}"
-echo -e "${GREEN}Pi-hole will filter and block unwanted internet domains at the DNS level,  ${NC}"
-echo -e "${GREEN}acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
+echo -e "${GREEN} If Forwarder are disabled Unbound will operate as a Recursive DNS Resolver.${NC}"
+echo -e "${GREEN} This aproach will prioritize privacy, security, and independence from third-party DNS services.${NC}"
 echo
-echo -e "${GREEN}Point your Subnets or individual Clients to Pi-Hole IP Address${NC}"
+echo -e "${GREEN} If you have opted for installing Pi-Hole, then  ${NC}"
+echo -e "${GREEN} Pi-hole will filter and block unwanted internet domains at the DNS level,  ${NC}"
+echo -e "${GREEN} acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
 echo
-echo -e "${GREEN}Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
-echo -e "${GREEN}If Local Domanin and Local A Records are properly configured in Unbound, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
+echo -e "${GREEN} Point your Subnets or individual Clients to Pi-Hole IP Address${NC}"
+echo
+echo -e "${GREEN} Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
+echo -e "${GREEN} If Local A Record is properly configured, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
 echo
 echo
 
@@ -686,7 +671,6 @@ echo
 ##########################
 # Prompt user for reboot #
 ##########################
-
 while true; do
     read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
     case "${response,,}" in
@@ -697,12 +681,12 @@ while true; do
 done
 
 ########################################
-# Remove the Script(s) from the system #
+# Remove Script(s) from the system #
 ########################################
-
 echo
 echo -e "${RED}This Script Will Self Destruct!${NC}"
 echo
-udo rm -f pihole-install.sh
+sudo apt-get purge --auto-remove expect
+sudo rm -f pihole-install.sh
 # VERY LAST LINE OF THE SCRIPT:
 sudo rm -f "$0" 
