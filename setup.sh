@@ -456,7 +456,6 @@ EOF
                     # Prompt the user for a password
                     echo -e "${GREEN}Please enter the Pi-Hole Web Admin Password (min 6 characters):${NC}"
                     read -s -p "Password: " user_password
-                    echo
 
                     # Check if the password is empty
                     if [ -z "$user_password" ]; then
