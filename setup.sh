@@ -686,7 +686,7 @@ done
 echo
 echo -e "${RED}This Script Will Self Destruct!${NC}"
 echo
-sudo apt-get purge --auto-remove expect
+sudo apt-get purge --auto-remove expect -y
 sudo rm -f pihole-install.sh
 # VERY LAST LINE OF THE SCRIPT:
 sudo rm -f "$0" 
