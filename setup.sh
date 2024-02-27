@@ -637,7 +637,7 @@ fi
 
 
 ##########################
-# Info befor reboot #
+# Info before reboot #
 ##########################
 echo
 echo -e "${GREEN}REMEMBER: ${NC}"
