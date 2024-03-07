@@ -1,5 +1,5 @@
 <p align="left">
-  <a href="https://github.com/vdarkobar/Home-Cloud#self-hosted-cloud">Home</a>
+  <a href="https://github.com/vdarkobar/Home-Cloud?tab=readme-ov-file#unbound-dns-optional-pi-hole">Home</a>
 </p>  
 
   
