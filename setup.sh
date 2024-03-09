@@ -5,6 +5,7 @@ clear
 ##############################################################
 # Define ANSI escape sequence for green, red and yellow font #
 ##############################################################
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
@@ -13,12 +14,14 @@ YELLOW='\033[0;33m'
 ########################################################
 # Define ANSI escape sequence to reset font to default #
 ########################################################
+
 NC='\033[0m'
 
 
 #################
 # Intro message #
 #################
+
 echo
 echo -e "${GREEN} This script will install and configure Unbound and, optionaly, Pi-Hole ${NC}"
 
@@ -36,6 +39,7 @@ echo
 ######################################
 # Prompt user to confirm script start#
 ######################################
+
 while true; do
     echo -e "${GREEN}Start installation and configuration? (y/n) ${NC}"
     read choice
@@ -64,6 +68,7 @@ done
 ###################
 # Install Unbound #
 ###################
+
 echo -e "${GREEN}Installing Unbound and other packages ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -78,6 +83,7 @@ fi
 #######################
 # Create backup files #
 #######################
+
 echo
 echo -e "${GREEN} Creating backup files ${NC}"
 
@@ -120,6 +126,7 @@ done
 #######################
 # Edit cloud.cfg file #
 #######################
+
 echo
 echo -e "${GREEN} Preventing Cloud-init of rewritining hosts file ${NC}"
 
@@ -140,6 +147,7 @@ echo -e "${GREEN}Modifications to${NC} $FILE_PATH ${GREEN}applied successfully.$
 ######################
 # Prepare hosts file #
 ######################
+
 echo
 echo -e "${GREEN} Setting up hosts file ${NC}"
 
@@ -186,6 +194,7 @@ fi
 ####################
 # Prepare firewall #
 ####################
+
 echo
 echo -e "${GREEN} Preparing firewall ${NC}"
 
@@ -201,6 +210,7 @@ sudo systemctl restart ufw
 #####################
 # Update root hints #
 #####################
+
 echo
 echo -e "${GREEN} Updating root hints file ${NC}"
 
@@ -214,6 +224,7 @@ echo
 ##############################
 # Improve avg response times #
 ##############################
+
 echo
 echo -e "${GREEN} Adding options to sysctl.conf file ${NC}"
 
@@ -226,6 +237,7 @@ echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && s
 #############################
 # Modify dhclient.conf file #
 #############################
+
 echo
 echo -e "${GREEN}Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
 
@@ -288,6 +300,7 @@ echo -e "${GREEN}Modifications completed successfully. ${NC}"
 ########################################
 # Preparing Unbound configuration file #
 ########################################
+
 echo
 echo -e "${GREEN}Preparing Unbound configuration file:${NC} unbound.conf"
 
@@ -371,11 +384,13 @@ fi
 echo -e "${GREEN}Configuration file updated successfully. ${NC}"
 echo
 
-sleep 1 # delay for 1 seconds
+sleep 0.5 # delay for 0.5 seconds
+
 
 #############################
 # Option to install Pi-Hole #
 #############################
+
 # Function to ask the user if they want to Install Pi-Hole
 ask_to_execute_commands() {
     while true; do
@@ -388,9 +403,11 @@ ask_to_execute_commands() {
                 echo -e "${GREEN}Preconfiguring and installing Pi-Hole...${NC}"
                 echo
 
+
                 #######################################################
                 # Install necesary package and perform hw clock check #
                 #######################################################
+                
                 sudo apt install expect -y
                 sudo hwclock --hctosys
 
@@ -398,6 +415,7 @@ ask_to_execute_commands() {
                 ##############################
                 # Create setupVars.conf file #
                 ##############################
+                
                 # Define the path to the directory and the file
                 directory_path=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
                 file_path="$directory_path/setupVars.conf"
@@ -431,6 +449,7 @@ EOF
                 #################################################################################
                 # replace SHA-256 hash placeholder with User defined Password in setupVars.conf #
                 #################################################################################
+                
                 # Path to the configuration file
                 config_file="setupVars.conf"
 
@@ -491,6 +510,7 @@ EOF
                 ###############################################################################
                 # replace NET_INT placeholder with primary network interfac in setupVars.conf #
                 ###############################################################################
+                
                 # Path to the configuration file
                 config_file="setupVars.conf"
 
@@ -522,6 +542,7 @@ EOF
                 ################################
                 # Set Pi-Hole automatic update #
                 ################################
+                
                 # Set Pi-Hole automatic update cron jobs
                 JOB1="0 2 1 * * pihole -up"
                 JOB2="0 3 1 * * pihole -g"
@@ -535,10 +556,12 @@ EOF
                 done
 
                 echo
+                
 
                 #####################################
                 # Copy prepared setupVars.conf file #
                 #####################################
+                
                 # Attempt to create the directory
                 sudo mkdir -p /etc/pihole
                 if [ $? -eq 0 ]; then
@@ -562,6 +585,7 @@ EOF
                 ###########################################
                 # Adjust the port nummber in unbound.conf #
                 ###########################################
+                
                 echo
                 echo -e "${GREEN}Adjusting Unbound port for Pi-Hole.${NC}"
 
@@ -578,6 +602,7 @@ EOF
                 ####################
                 # Prepare Firewall #
                 ####################
+                
                 echo
                 echo -e "${GREEN}Preparing firewall for Pi-Hole Admin Console ${NC}"
 
@@ -592,6 +617,7 @@ EOF
                 ##############################
                 # Run Pi-Hole install Script #
                 ##############################
+                
                 # Script is executable and has a shebang line
                 ./pihole-install.sh
 
@@ -621,9 +647,11 @@ EOF
 # Call the function
 ask_to_execute_commands
 
+
 ##############################
 # Replace configuration file #
 ##############################
+
 echo -e "${GREEN}Replacing existing Unbound configuration file.${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -636,9 +664,39 @@ else
 fi
 
 
-##########################
+###############################
+# Root hints automatic update #
+###############################
+
+# Define the command to add to crontab
+COMMAND="wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints > /dev/null && sudo systemctl restart unbound"
+
+# Create a cron job that runs every 3 months
+CRON_JOB="0 0 1 */3 * $COMMAND"
+# Use mktemp to create a temporary file safely
+TEMP_FILE=$(mktemp)
+# Export the current crontab to the temporary file
+crontab -l > "$TEMP_FILE"
+
+# Check if the command is already in the crontab
+if grep -Fq "$COMMAND" "$TEMP_FILE"; then
+    echo -ne "${YELLOW}Command already exists in the crontab.${NC}"
+else
+    # Add the command to the crontab
+    echo -ne "${GREEN}Adding command to the crontab.${NC}"
+    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+fi
+
+# Clean up the temporary file
+rm "$TEMP_FILE"
+
+echo -ne "${GREEN}Crontab updated successfully.${NC}"
+
+
+######################
 # Info before reboot #
-##########################
+######################
+
 echo
 echo -e "${GREEN}REMEMBER: ${NC}"
 echo
@@ -670,6 +728,7 @@ echo
 ##########################
 # Prompt user for reboot #
 ##########################
+
 while true; do
     read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
     case "${response,,}" in
@@ -679,13 +738,14 @@ while true; do
     esac
 done
 
-########################################
+####################################
 # Remove Script(s) from the system #
-########################################
+####################################
+
 echo
 echo -e "${RED}This Script Will Self Destruct!${NC}"
 echo
 sudo apt-get purge --auto-remove expect -y
 sudo rm -f pihole-install.sh
 # VERY LAST LINE OF THE SCRIPT:
-sudo rm -f "$0" 
+sudo rm "$0" 
