@@ -748,4 +748,4 @@ echo
 sudo apt-get purge --auto-remove expect -y
 sudo rm -f pihole-install.sh
 # VERY LAST LINE OF THE SCRIPT:
-sudo rm "$0" 
+rm -- "$0"
