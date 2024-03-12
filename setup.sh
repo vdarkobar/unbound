@@ -329,6 +329,7 @@ echo -e "\033[${num_lines}A\033[0J"
 
 # Ask and validate LOCAL_SUBNET_ACCESS
 while true; do
+  echo
   read -p "Enter Local Subnet for Access Control (Format example: 192.168.10.0/24): " LOCAL_SUBNET_ACCESS
   if echo "$LOCAL_SUBNET_ACCESS" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$'; then
     break
@@ -339,6 +340,7 @@ done
 
 # Ask and validate HOST_NAME_LOCAL
 while true; do
+  echo
   read -p "Enter Machine Host Name (Format example: server01): " HOST_NAME_LOCAL
   if echo "$HOST_NAME_LOCAL" | grep -Eq '^[a-zA-Z0-9\-]+$'; then
     break
@@ -349,6 +351,7 @@ done
 
 # Ask and validate IP_LOCAL
 while true; do
+  echo
   read -p "Enter IP address for the Host you have named (Format example: 192.168.1.11): " IP_LOCAL
   if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
     break
@@ -394,9 +397,6 @@ sleep 0.5 # delay for 0.5 seconds
 #############################
 # Option to install Pi-Hole #
 #############################
-
-num_lines=$(tput lines)
-echo -e "\033[${num_lines}A\033[0J"
 
 # Function to ask the user if they want to Install Pi-Hole
 ask_to_execute_commands() {
@@ -477,9 +477,13 @@ EOF
                     sed -i "s/SHA-256/$hash/" "$config_file" || echo -e "${RED} Error: Failed to replace the placeholder in $config_file${NC}" >&2
                 }
 
+                num_lines=$(tput lines)
+                echo -e "\033[${num_lines}A\033[0J"
+
                 # Loop until a valid password is entered
                 while true; do
                     # Prompt the user for a password
+                    echo
                     echo -e "${GREEN} Please enter the Pi-Hole Web Admin Password (min 6 characters):${NC}"
                     echo
                     read -s -p "Password: " user_password
@@ -717,6 +721,7 @@ fi
 
 echo
 echo -e "${GREEN} Crontab updated successfully.${NC}"
+sleep 0.5 # delay for 0.5 seconds
 
 
 ######################
