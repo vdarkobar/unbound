@@ -718,9 +718,9 @@ echo -e "${GREEN} Crontab updated successfully.${NC}"
 ######################
 
 domain_name=$(awk -F' ' '/^domain/ {print $2; exit}' /etc/resolv.conf)
-host_ip=$(hostname -I | awk '{print $1}')
+IP_ADDRESS=$(hostname -I | awk '{print $1}')
 host_name=$(hostname)
-new_line="$host_ip $host_name $host_name.$domain_name"
+pi_hole="http://$host_name.$domain_name/admin"
 
 echo
 echo
@@ -753,7 +753,7 @@ echo -e "${GREEN} - Point your Subnets or individual Clients to${NC} Pi-Hole ${G
 echo
 echo -e "${GREEN} - Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
 echo
-echo -e "${GREEN}   If Local A Record (Unbound) is properly configured, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
+echo -e "${GREEN}   If Local A Record (Unbound) is properly configured, at:${NC} $pi_hole"
 echo
 echo
 
