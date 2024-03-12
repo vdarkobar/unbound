@@ -335,24 +335,27 @@ while true; do
 done
 
 # Ask and validate HOST_NAME_LOCAL
-while true; do
-  read -p "Enter Machine Host Name (Format example: server01): " HOST_NAME_LOCAL
-  if echo "$HOST_NAME_LOCAL" | grep -Eq '^[a-zA-Z0-9\-]+$'; then
-    break
-  else
-    echo -e "${RED} Error: Host name format is invalid. Use only alphanumeric characters and hyphens. ${NC}"
-  fi
-done
+#while true; do
+#  read -p "Enter Machine Host Name (Format example: server01): " HOST_NAME_LOCAL
+#  if echo "$HOST_NAME_LOCAL" | grep -Eq '^[a-zA-Z0-9\-]+$'; then
+#    break
+#  else
+#    echo -e "${RED} Error: Host name format is invalid. Use only alphanumeric characters and hyphens. ${NC}"
+#  fi
+#done
 
 # Ask and validate IP_LOCAL
-while true; do
-  read -p "Enter IP address for the Host you have named (Format example: 192.168.1.11): " IP_LOCAL
-  if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-    break
-  else
-    echo -e "${RED} Error: IP Address format is invalid. Please enter a valid${NC} IPv4 ${RED}address. ${NC}"
-  fi
-done
+#while true; do
+#  read -p "Enter IP address for the Host you have named (Format example: 192.168.1.11): " IP_LOCAL
+#  if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+#    break
+#  else
+#    echo -e "${RED} Error: IP Address format is invalid. Please enter a valid${NC} IPv4 ${RED}address. ${NC}"
+#  fi
+#done
+
+HOST_NAME_LOCAL=$(hostname)
+IP_LOCAL=host_ip=$(hostname -I | awk '{print $1}')
 
 echo
 
@@ -606,7 +609,7 @@ EOF
                 ####################
                 
                 echo
-                echo -e "${GREEN} Preparing firewall for Pi-Hole Admin Console ${NC}"
+                echo -e "${GREEN} Preparing firewall for${NC} Pi-Hole Admin Console "
 
                 sleep 0.5 # delay for 0.5 seconds
                 echo
@@ -705,7 +708,7 @@ update_crontab() {
 if check_crontab; then
     echo -e "${YELLOW} Cron entry already exists in the crontab.${NC}"
 else
-    echo -e "${GREEN} Adding cron entry to the crontab.${NC}"
+    echo -e "${GREEN} Adding cron entry to the${NC} crontab"
     update_crontab || { echo -e "${RED} Failed to update the crontab.${NC}"; exit 1; }
 fi
 
