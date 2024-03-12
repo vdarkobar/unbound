@@ -32,7 +32,7 @@ echo -e "${GREEN} You'll be asked to enter: ${NC}"
 echo -e " - One Local Subnet for Access Control"
 echo -e " - One entry for Local DNS Lookup (hostname/ip)"
 echo
-echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter: - Pi-Hole Dashboard Admin Password ${NC}"
+echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter: Pi-Hole Dashboard Admin Password ${NC}"
 echo -e " - Pi-Hole Dashboard Admin Password"
 echo
 
@@ -42,7 +42,7 @@ echo
 ######################################
 
 while true; do
-    echo -e "${GREEN}Start installation and configuration?${NC} (yes/no) "
+    echo -e "${GREEN} Start installation and configuration?${NC} (yes/no) "
     echo
     read choice
     echo
@@ -52,19 +52,19 @@ while true; do
     if [[ "$choice" == "yes" ]]; then
         # Confirming the start of the script
         echo
-        echo -e "${GREEN}Starting... ${NC}"
+        echo -e "${GREEN} Starting... ${NC}"
         sleep 0.5 # delay for 0.5 second
         echo
         break
 
     # Check if user entered "no"
     elif [[ "$choice" == "no" ]]; then
-        echo -e "${RED}Aborting script. ${NC}"
+        echo -e "${RED} Aborting script. ${NC}"
         exit
 
     # If user entered anything else, ask them to correct it
     else
-        echo -e "${YELLOW}Invalid input. Please enter${NC} 'yes' or 'no'"
+        echo -e "${YELLOW} Invalid input. Please enter${NC} 'yes' or 'no'"
         echo
     fi
 done
@@ -74,13 +74,13 @@ done
 # Install Unbound #
 ###################
 
-echo -e "${GREEN}Installing Unbound and other packages ${NC}"
+echo -e "${GREEN} Installing Unbound and other packages ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
 
 if ! sudo apt -y install unbound net-tools tcpdump ca-certificates; then
-    echo -e "${RED}Failed to install packages. Exiting.${NC}"
+    echo -e "${RED} Failed to install packages. Exiting.${NC}"
     exit 1
 fi
 
@@ -98,18 +98,18 @@ echo
 # Backup the existing /etc/hosts file
 if [ ! -f /etc/hosts.backup ]; then
     sudo cp /etc/hosts /etc/hosts.backup
-    echo -e "${GREEN}Backup of${NC} /etc/hosts ${GREEN}created.${NC}"
+    echo -e "${GREEN} Backup of${NC} /etc/hosts ${GREEN}created.${NC}"
 else
-    echo -e "${YELLOW}Backup of${NC} /etc/hosts ${YELLOW}already exists. Skipping backup.${NC}"
+    echo -e "${YELLOW} Backup of${NC} /etc/hosts ${YELLOW}already exists. Skipping backup.${NC}"
 fi
 
 # Backup original /etc/cloud/cloud.cfg file before modifications
 CLOUD_CFG="/etc/cloud/cloud.cfg"
 if [ ! -f "$CLOUD_CFG.bak" ]; then
     sudo cp "$CLOUD_CFG" "$CLOUD_CFG.bak"
-    echo -e "${GREEN}Backup of${NC} $CLOUD_CFG ${GREEN}created.${NC}"
+    echo -e "${GREEN} Backup of${NC} $CLOUD_CFG ${GREEN}created.${NC}"
 else
-    echo -e "${YELLOW}Backup of${NC} $CLOUD_CFG ${YELLOW}already exists. Skipping backup.${NC}"
+    echo -e "${YELLOW} Backup of${NC} $CLOUD_CFG ${YELLOW}already exists. Skipping backup.${NC}"
 fi
 
 # Before modifying Unbound configuration files, create backups if they don't already exist
@@ -121,9 +121,9 @@ UNBOUND_FILES=(
 for file in "${UNBOUND_FILES[@]}"; do
     if [ ! -f "$file.backup" ]; then
         sudo cp "$file" "$file.backup"
-        echo -e "${GREEN}Backup of${NC} $file ${GREEN}created.${NC}"
+        echo -e "${GREEN} Backup of${NC} $file ${GREEN}created.${NC}"
     else
-        echo -e "${YELLOW}Backup of${NC} $file ${YELLOW}already exists. Skipping backup.${NC}"
+        echo -e "${YELLOW} Backup of${NC} $file ${YELLOW}already exists. Skipping backup.${NC}"
     fi
 done
 
@@ -146,7 +146,7 @@ sudo sed -i '/^\s*- set_hostname/ s/^/#/' "$FILE_PATH"
 sudo sed -i '/^\s*- update_hostname/ s/^/#/' "$FILE_PATH"
 sudo sed -i '/^\s*- update_etc_hosts/ s/^/#/' "$FILE_PATH"
 
-echo -e "${GREEN}Modifications to${NC} $FILE_PATH ${GREEN}applied successfully.${NC}"
+echo -e "${GREEN} Modifications to${NC} $FILE_PATH ${GREEN}applied successfully.${NC}"
 
 
 ######################
@@ -238,7 +238,7 @@ echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && s
 #############################
 
 echo
-echo -e "${GREEN}Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
+echo -e "${GREEN} Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
@@ -248,52 +248,52 @@ DHCLIENT_CONF="/etc/dhcp/dhclient.conf"
 
 # Check if the dhclient.conf file exists
 if [ ! -f "$DHCLIENT_CONF" ]; then
-    echo -e "${RED}Error:${NC} $DHCLIENT_CONF ${RED}does not exist. ${NC}"
+    echo -e "${RED} Error:${NC} $DHCLIENT_CONF ${RED}does not exist. ${NC}"
     exit 1
 fi
 
 # Backup the original file before making changes
 sudo cp $DHCLIENT_CONF "${DHCLIENT_CONF}.bak"
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Error: Failed to backup the original${NC} dhclient.conf ${RED}file. ${NC}"
+    echo -e "${RED} Error: Failed to backup the original${NC} dhclient.conf ${RED}file. ${NC}"
     exit 1
 fi
 
 # Replace the specified lines
 sudo sed -i 's/domain-name, domain-name-servers, domain-search, host-name,/domain-name, domain-search, host-name,/' $DHCLIENT_CONF
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Error: Failed to replace the first specified line. ${NC}"
+    echo -e "${RED} Error: Failed to replace the first specified line. ${NC}"
     exit 1
 fi
 
 sudo sed -i 's/dhcp6.name-servers, dhcp6.domain-search, dhcp6.fqdn, dhcp6.sntp-servers,/dhcp6.domain-search, dhcp6.fqdn, dhcp6.sntp-servers,/' $DHCLIENT_CONF
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Error: Failed to replace the second specified line. ${NC}"
+    echo -e "${RED} Error: Failed to replace the second specified line. ${NC}"
     exit 1
 fi
 
 # Get the primary IP address of the machine
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
 if [ -z "$IP_ADDRESS" ]; then
-    echo -e "${RED}Error: Failed to obtain the IP address of the machine. ${NC}"
+    echo -e "${RED} Error: Failed to obtain the IP address of the machine. ${NC}"
     exit 1
 fi
 
 # Check and replace the "prepend domain-name-servers" line with the machine's IP address
 sudo sed -i "/^#prepend domain-name-servers 127.0.0.1;/a prepend domain-name-servers ${IP_ADDRESS};" $DHCLIENT_CONF
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Error: Failed to insert the machine's IP address. ${NC}"
+    echo -e "${RED} Error: Failed to insert the machine's IP address. ${NC}"
     exit 1
 fi
 
 # Now, find the line with the machine's IP address and add the 127.0.0.1 below it
 sudo sed -i "/^prepend domain-name-servers ${IP_ADDRESS};/a prepend domain-name-servers 127.0.0.1;" $DHCLIENT_CONF
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Error: Failed to insert the${NC} 127.0.0.1 ${RED}address below the machine's IP address. ${NC}"
+    echo -e "${RED} Error: Failed to insert the${NC} 127.0.0.1 ${RED}address below the machine's IP address. ${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}Modifications completed successfully. ${NC}"
+echo -e "${GREEN} Modifications completed successfully. ${NC}"
 
 
 ########################################
@@ -301,7 +301,7 @@ echo -e "${GREEN}Modifications completed successfully. ${NC}"
 ########################################
 
 echo
-echo -e "${GREEN}Preparing Unbound configuration file:${NC} unbound.conf"
+echo -e "${GREEN} Preparing Unbound configuration file:${NC} unbound.conf"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
@@ -311,14 +311,14 @@ DOMAIN_NAME_LOCAL=$(grep '^domain' /etc/resolv.conf | awk '{print $2}')
 
 # Check if the domain name was found
 if [ -z "$DOMAIN_NAME_LOCAL" ]; then
-  echo -e "${RED}Domain name not found in ${NC} /etc/resolv.conf"
+  echo -e "${RED} Domain name not found in ${NC} /etc/resolv.conf"
   exit 1
 fi
 
 # Replace DOMAIN_NAME placeholder in unbound.conf with the extracted domain name
 sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
-echo -e "${GREEN}Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} unbound.conf"
+echo -e "${GREEN} Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} unbound.conf"
 echo
 # User input
 
@@ -328,7 +328,7 @@ while true; do
   if echo "$LOCAL_SUBNET_ACCESS" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$'; then
     break
   else
-    echo -e "${RED}Error: Subnet format is invalid. Please enter a valid${NC} CIDR ${RED}notation. ${NC}"
+    echo -e "${RED} Error: Subnet format is invalid. Please enter a valid${NC} CIDR ${RED}notation. ${NC}"
   fi
 done
 
@@ -338,7 +338,7 @@ while true; do
   if echo "$HOST_NAME_LOCAL" | grep -Eq '^[a-zA-Z0-9\-]+$'; then
     break
   else
-    echo -e "${RED}Error: Host name format is invalid. Use only alphanumeric characters and hyphens. ${NC}"
+    echo -e "${RED} Error: Host name format is invalid. Use only alphanumeric characters and hyphens. ${NC}"
   fi
 done
 
@@ -348,7 +348,7 @@ while true; do
   if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
     break
   else
-    echo -e "${RED}Error: IP Address format is invalid. Please enter a valid${NC} IPv4 ${RED}address. ${NC}"
+    echo -e "${RED} Error: IP Address format is invalid. Please enter a valid${NC} IPv4 ${RED}address. ${NC}"
   fi
 done
 
@@ -360,27 +360,27 @@ sleep 0.5 # delay for 0.5 seconds
 
 # Attempt to replace placeholders in unbound.conf
 if sed -i "s:LOCAL_SUBNET_ACCESS:$LOCAL_SUBNET_ACCESS:g" unbound.conf; then
-  echo -e "${GREEN}Local Subnet applied successfully. ${NC}"
+  echo -e "${GREEN} Local Subnet applied successfully. ${NC}"
 else
-  echo -e "${RED}Error replacing Subnet Address. ${NC}"
+  echo -e "${RED} Error replacing Subnet Address. ${NC}"
   exit 1
 fi
 
 if sed -i "s:HOST_NAME_LOCAL:$HOST_NAME_LOCAL:g" unbound.conf; then
   echo -e "${GREEN}Host Name applied successfully. ${NC}"
 else
-  echo -e "${RED}Error replacing Host Name. ${NC}"
+  echo -e "${RED} Error replacing Host Name. ${NC}"
   exit 1
 fi
 
 if sed -i "s:IP_LOCAL:$IP_LOCAL:g" unbound.conf; then
-  echo -e "${GREEN}IP Address applied successfully."
+  echo -e "${GREEN} IP Address applied successfully."
 else
-  echo -e "${RED}Error replacing IP Address. ${NC}"
+  echo -e "${RED} Error replacing IP Address. ${NC}"
   exit 1
 fi
 
-echo -e "${GREEN}Configuration file updated successfully. ${NC}"
+echo -e "${GREEN} Configuration file updated successfully. ${NC}"
 echo
 
 sleep 0.5 # delay for 0.5 seconds
@@ -421,7 +421,7 @@ ask_to_execute_commands() {
 
                 # Create or overwrite the setupVars.conf file, using sudo for permissions
                 echo
-                echo -e "${GREEN}Creating file:${NC} $file_path"
+                echo -e "${GREEN} Creating file:${NC} $file_path"
 
                 sudo tee "$file_path" > /dev/null <<EOF
 PIHOLE_INTERFACE=NET_INT
@@ -466,7 +466,7 @@ EOF
                 # Function to replace the placeholder in the configuration file
                 replace_placeholder() {
                     local hash=$1
-                    sed -i "s/SHA-256/$hash/" "$config_file" || echo "Error: Failed to replace the placeholder in $config_file." >&2
+                    sed -i "s/SHA-256/$hash/" "$config_file" || echo -e "${RED} Error: Failed to replace the placeholder in $config_file${NC}" >&2
                 }
 
                 # Loop until a valid password is entered
@@ -485,7 +485,7 @@ EOF
 
                     # Check if the password length is less than 6 characters
                     if [ ${#user_password} -lt 6 ]; then
-                        echo -e "${RED}Error: Password must be at least 6 characters long. Please try again.${NC}"
+                        echo -e "${RED} Error: Password must be at least 6 characters long. Please try again.${NC}"
                         echo
                         continue
                     fi
@@ -523,19 +523,19 @@ EOF
                 # Function to replace the placeholder in the configuration file
                 replace_placeholder() {
                     local net_interface=$1
-                    sed -i "s/NET_INT/$net_interface/" "$config_file" || echo "Error: Failed to replace the placeholder in $config_file." >&2
+                    sed -i "s/NET_INT/$net_interface/" "$config_file" || echo -e "${RED} Error: Failed to replace the placeholder in $config_file ${NC}" >&2
                 }
 
                 # Identify the network interface
                 network_interface=$(identify_network_interface)
 
                 if [ -n "$network_interface" ]; then
-                    echo -e "${GREEN}Primary network interface identified:${NC} $network_interface"
+                    echo -e "${GREEN} Primary network interface identified:${NC} $network_interface"
                     echo
                     # Replace the placeholder in the configuration file
                     replace_placeholder "$network_interface"
                 else
-                    echo -e "${RED}Error: Failed to identify the primary network interface." >&2
+                    echo -e "${RED} Error: Failed to identify the primary network interface ${NC}" >&2
                 fi
 
 
@@ -549,9 +549,9 @@ EOF
 
                 for job in "$JOB1" "$JOB2"; do
                     if (crontab -l 2>/dev/null; echo "$job") | crontab -; then
-                        echo -e "${GREEN}Job added to${NC} crontab"
+                        echo -e "${GREEN} Job added to${NC} crontab"
                     else
-                        echo -e "${RED}Error: Unable to append job to${NC} crontab"
+                        echo -e "${RED} Error: Unable to append job to${NC} crontab"
                     fi
                 done
 
@@ -565,9 +565,9 @@ EOF
                 # Attempt to create the directory
                 sudo mkdir -p /etc/pihole
                 if [ $? -eq 0 ]; then
-                    echo -e "${GREEN}Directory${NC} /etc/pihole ${GREEN}created or already exists.${NC}"
+                    echo -e "${GREEN} Directory${NC} /etc/pihole ${GREEN}created or already exists.${NC}"
                 else
-                    echo -e "${RED}Failed to create${NC} /etc/pihole ${RED}directory.${NC}"
+                    echo -e "${RED} Failed to create${NC} /etc/pihole ${RED}directory.${NC}"
                     exit 1
                 fi
 
@@ -575,9 +575,9 @@ EOF
                 sudo cp setupVars.conf /etc/pihole/setupVars.conf
                 if [ $? -eq 0 ]; then
                     echo
-                    echo -e "${GREEN}File copied successfully.${NC}"
+                    echo -e "${GREEN} File copied successfully.${NC}"
                 else
-                    echo -e "${RED}Failed to copy file.${NC}"
+                    echo -e "${RED} Failed to copy file.${NC}"
                     exit 1
                 fi
 
@@ -587,15 +587,15 @@ EOF
                 ###########################################
                 
                 echo
-                echo -e "${GREEN}Adjusting Unbound port for Pi-Hole.${NC}"
+                echo -e "${GREEN} Adjusting Unbound port for Pi-Hole.${NC}"
 
                 sleep 0.5 # delay for 0.5 seconds
                 echo
 
                 if sudo sed -i 's/port: 53/port: 5335/' unbound.conf; then
-                    echo -e "${GREEN}Configuration update successfully applied to${NC} unbound.conf"
+                    echo -e "${GREEN} Configuration update successfully applied to${NC} unbound.conf"
                 else
-                    echo -e "${RED}Error: Failed to update configuration in${NC} unbound.conf"
+                    echo -e "${RED} Error: Failed to update configuration in${NC} unbound.conf"
                 fi
 
 
@@ -604,7 +604,7 @@ EOF
                 ####################
                 
                 echo
-                echo -e "${GREEN}Preparing firewall for Pi-Hole Admin Console ${NC}"
+                echo -e "${GREEN} Preparing firewall for Pi-Hole Admin Console ${NC}"
 
                 sleep 0.5 # delay for 0.5 seconds
                 echo
@@ -624,9 +624,9 @@ EOF
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
                     echo
-                    echo -e "${GREEN}Pi-Hole installation completed successfully.${NC}"
+                    echo -e "${GREEN} Pi-Hole installation completed successfully.${NC}"
                 else
-                    echo -e "${RED}Pi-Hole installation encountered an error.${NC}"
+                    echo -e "${RED} Pi-Hole installation encountered an error.${NC}"
                 fi
 
                 echo
@@ -634,11 +634,11 @@ EOF
                 break # Exit the loop after executing the commands
                 ;;
             no|n)
-                echo -e "${YELLOW}Skipping Pi-Hole installation${NC}"
+                echo -e "${YELLOW} Skipping Pi-Hole installation${NC}"
                 break # Exit the loop and continue with the rest of the script
                 ;;
             *)
-                echo -e "${RED}Error: Please answer${NC} 'yes' or 'no' "
+                echo -e "${RED} Error: Please answer${NC} 'yes' or 'no' "
                 echo
                 ;;
         esac
@@ -653,16 +653,16 @@ ask_to_execute_commands
 # Replace configuration file #
 ##############################
 
-echo -e "${GREEN}Replacing existing Unbound configuration file.${NC}"
+echo -e "${GREEN} Replacing existing Unbound configuration file.${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
 
 if sudo cp unbound.conf /etc/unbound/unbound.conf; then
-    echo -e "${GREEN}File${NC} unbound.conf ${GREEN}copied successfully. ${NC}"
+    echo -e "${GREEN} File${NC} unbound.conf ${GREEN}copied successfully. ${NC}"
     echo
 else
-    echo -e "${RED}Error: Failed to copy file${NC} unbound.conf ${RED}to${NC} /etc/unbound/ ${NC}"
+    echo -e "${RED} Error: Failed to copy file${NC} unbound.conf ${RED}to${NC} /etc/unbound/ ${NC}"
 fi
 
 
@@ -701,14 +701,14 @@ update_crontab() {
 
 # Check if the cron entry is already present
 if check_crontab; then
-    echo -e "${YELLOW}Cron entry already exists in the crontab.${NC}"
+    echo -e "${YELLOW} Cron entry already exists in the crontab.${NC}"
 else
-    echo -e "${GREEN}Adding cron entry to the crontab.${NC}"
-    update_crontab || { echo -e "${RED}Failed to update the crontab.${NC}"; exit 1; }
+    echo -e "${GREEN} Adding cron entry to the crontab.${NC}"
+    update_crontab || { echo -e "${RED} Failed to update the crontab.${NC}"; exit 1; }
 fi
 
 echo
-echo -e "${GREEN}Crontab updated successfully.${NC}"
+echo -e "${GREEN} Crontab updated successfully.${NC}"
 
 
 ######################
@@ -720,33 +720,33 @@ echo
 echo -e "${GREEN}REMEMBER: ${NC}"
 echo
 echo
-echo -e "${GREEN} Unbound will listen on all interfaces, with access limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
+echo -e "${GREEN} - Unbound will listen on all interfaces, with access limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo
-echo -e "${GREEN} One Local A Record(${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in${NC} Local Subnet Zone "
+echo -e "${GREEN} - One Local A Record(${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in${NC} Local Subnet Zone "
 echo
-echo -e "${GREEN} Additional Subnet Zones/Local A Records must be configured in:${NC} /etc/unboun/unboud.conf"
+echo -e "${GREEN}   Additional Subnet Zones/Local A Records must be configured in:${NC} /etc/unboun/unboud.conf"
 echo
-echo -e "${GREEN} Queries that cannot be answered locally Unbound will forward to${NC} Upstream DNS servers, "
+echo -e "${GREEN} - Queries that cannot be answered locally Unbound will forward to${NC} Upstream DNS servers, "
 echo
-echo -e "${GREEN} Using${NC} DNS-over-TLS (DoT) ${GREEN}for encryption, enhancing privacy and security ${NC}"
+echo -e "${GREEN}   using${NC} DNS-over-TLS (DoT) ${GREEN}for encryption, enhancing privacy and security ${NC}"
 echo
-echo -e "${GREEN} Forwarders:${NC} Quad9${GREEN},${NC} Cloudflare${GREEN}, and optionally${NC} Google ${GREEN}(must be enabled) ${NC}"
+echo -e "${GREEN} - Forwarders:${NC} Quad9${GREEN},${NC} Cloudflare${GREEN}, and optionally${NC} Google ${GREEN}(must be enabled) ${NC}"
 echo
-echo -e "${GREEN} If Forwarder are disabled, Unbound will operate as a${NC} Recursive DNS Resolver"
+echo -e "${GREEN}   If Forwarder are disabled, Unbound will operate as a${NC} Recursive DNS Resolver"
 echo
-echo -e "${GREEN} This aproach will prioritize privacy, security, and independence from third-party DNS services${NC}"
+echo -e "${GREEN}   This aproach will prioritize privacy, security, and independence from third-party DNS services${NC}"
 echo
-echo -e "${GREEN} If you have opted for installing${NC} Pi-Hole "
+echo -e "${GREEN} - If you have opted for installing${NC} Pi-Hole "
 echo
-echo -e "${GREEN} Pi-hole will filter and block unwanted internet domains at the DNS level,  ${NC}"
+echo -e "${GREEN}   Pi-hole will filter and block unwanted internet domains at the DNS level,  ${NC}"
 echo
-echo -e "${GREEN} acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
+echo -e "${GREEN}   acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
 echo
-echo -e "${GREEN} Point your Subnets or individual Clients to${NC} Pi-Hole IP Address: $IP_ADDRESS"
+echo -e "${GREEN} - Point your Subnets or individual Clients to${NC} Pi-Hole IP Address: $IP_ADDRESS"
 echo
-echo -e "${GREEN} Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
+echo -e "${GREEN} - Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
 echo
-echo -e "${GREEN} If Local A Record (Unbound) is properly configured, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
+echo -e "${GREEN}   If Local A Record (Unbound) is properly configured, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
 echo
 echo
 
@@ -759,9 +759,9 @@ while true; do
     read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
     echo
     case "${response,,}" in
-        yes|y) echo -e "${GREEN}Rebooting the server...${NC}"; sudo reboot; break ;;
-        no|n) echo -e "${RED}Reboot cancelled.${NC}"; exit 0 ;;
-        *) echo -e "${YELLOW}Invalid response. Please answer${NC} yes or no."; echo ;;
+        yes|y) echo -e "${GREEN} Rebooting the server...${NC}"; sudo reboot; break ;;
+        no|n) echo -e "${RED} Reboot cancelled.${NC}"; exit 0 ;;
+        *) echo -e "${YELLOW} Invalid response. Please answer${NC} yes or no."; echo ;;
     esac
 done
 
@@ -770,7 +770,7 @@ done
 ####################################
 
 echo
-echo -e "${RED}This Script Will Self Destruct!${NC}"
+echo -e "${RED} This Script Will Self Destruct!${NC}"
 echo
 sudo apt-get purge --auto-remove expect -y
 sudo rm -f pihole-install.sh
