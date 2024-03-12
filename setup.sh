@@ -2,6 +2,8 @@
 
 clear
 
+WORK_DIR=$(pwd)
+
 ##############################################################
 # Define ANSI escape sequence for green, red and yellow font #
 ##############################################################
@@ -367,7 +369,7 @@ else
 fi
 
 if sed -i "s:HOST_NAME_LOCAL:$HOST_NAME_LOCAL:g" unbound.conf; then
-  echo -e "${GREEN}Host Name applied successfully. ${NC}"
+  echo -e "${GREEN} Host name applied successfully. ${NC}"
 else
   echo -e "${RED} Error replacing Host Name. ${NC}"
   exit 1
@@ -742,7 +744,7 @@ echo -e "${GREEN}   Pi-hole will filter and block unwanted internet domains at t
 echo
 echo -e "${GREEN}   acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
 echo
-echo -e "${GREEN} - Point your Subnets or individual Clients to${NC} Pi-Hole IP Address: $IP_ADDRESS"
+echo -e "${GREEN} - Point your Subnets or individual Clients to${NC} Pi-Hole ${GREEN}IP Address:${NC} $IP_ADDRESS"
 echo
 echo -e "${GREEN} - Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
 echo
@@ -772,7 +774,5 @@ done
 echo
 echo -e "${RED} This Script Will Self Destruct!${NC}"
 echo
-sudo apt-get purge --auto-remove expect -y
-sudo rm -f pihole-install.sh
-# VERY LAST LINE OF THE SCRIPT:
-rm -- "$0"
+cd ~
+sudo rm -rf $WORK_DIR
