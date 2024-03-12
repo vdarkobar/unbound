@@ -64,6 +64,7 @@ while true; do
     # If user entered anything else, ask them to correct it
     else
         echo -e "${YELLOW}Invalid input. Please enter${NC} 'yes' or 'no'"
+        echo
     fi
 done
 
@@ -397,7 +398,7 @@ ask_to_execute_commands() {
         # Normalize the answer to lower case
         case "${answer,,}" in
             yes|y)
-                echo -e "${GREEN}Preconfiguring and installing Pi-Hole...${NC}"
+                echo -e "${GREEN} Preconfiguring and installing Pi-Hole...${NC}"
                 echo
 
 
@@ -439,7 +440,7 @@ PIHOLE_DNS_1=127.0.0.1#5335
 PIHOLE_DNS_2=
 EOF
                 echo
-                echo -e "${GREEN}File${NC} setupVars.conf ${GREEN}created successfully.${NC}"
+                echo -e "${GREEN} File${NC} setupVars.conf ${GREEN}created successfully.${NC}"
                 echo
 
 
@@ -470,7 +471,8 @@ EOF
                 # Loop until a valid password is entered
                 while true; do
                     # Prompt the user for a password
-                    echo -e "${GREEN}Please enter the Pi-Hole Web Admin Password (min 6 characters):${NC}"
+                    echo -e "${GREEN} Please enter the Pi-Hole Web Admin Password (min 6 characters):${NC}"
+                    echo
                     read -s -p "Password: " user_password
 
                     # Check if the password is empty
@@ -635,6 +637,7 @@ EOF
                 break # Exit the loop and continue with the rest of the script
                 ;;
             *)
+                echo
                 echo -e "${RED}Error: Please answer${NC} 'yes' or 'no' "
                 ;;
         esac
@@ -665,29 +668,44 @@ fi
 # Root hints automatic update #
 ###############################
 
-# Define the command to add to crontab
-COMMAND="wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints > /dev/null && sudo systemctl restart unbound"
+# Define the command to execute
+command="wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints > /dev/null && sudo systemctl restart unbound"
 
-# Create a cron job that runs every 3 months
-CRON_JOB="0 0 1 */3 * $COMMAND"
-# Use mktemp to create a temporary file safely
-TEMP_FILE=$(mktemp)
-# Export the current crontab to the temporary file
-crontab -l > "$TEMP_FILE"
+# The crontab entry will perform the following tasks:
+# 1. Download the latest root hints file from https://www.internic.net/domain/named.root
+# 2. Save the downloaded file as /usr/share/dns/root.hints (requires sudo permissions)
+# 3. Restart the unbound DNS resolver service (requires sudo permissions)
+#
+# The cron job will run at 00:00 (midnight) on the first day of every third month.
+# This means the root hints file will be updated and the unbound service restarted
+# every 3 months to ensure the system has the latest root DNS server information.
+cron_entry="0 0 1 */3 * $command"
+cron_comment="# Update root hints and restart unbound DNS resolver"
 
-# Check if the command is already in the crontab
-if grep -Fq "$COMMAND" "$TEMP_FILE"; then
-    echo -ne "${YELLOW}Command already exists in the crontab.${NC}"
+# Function to check if the cron entry is already present
+check_crontab() {
+    crontab -l | grep -Fxq "$cron_entry"
+}
+
+# Function to update the crontab
+update_crontab() {
+    temp_file=$(mktemp)
+    crontab -l > "$temp_file"
+    echo "$cron_comment" >> "$temp_file"
+    echo "$cron_entry" >> "$temp_file"
+    crontab "$temp_file"
+    rm "$temp_file"
+}
+
+# Check if the cron entry is already present
+if check_crontab; then
+    echo -e "${YELLOW}Cron entry already exists in the crontab.${NC}"
 else
-    # Add the command to the crontab
-    echo -ne "${GREEN}Adding command to the crontab.${NC}"
-    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+    echo -e "${GREEN}Adding cron entry to the crontab.${NC}"
+    update_crontab || { echo -e "${RED}Failed to update the crontab.${NC}"; exit 1; }
 fi
 
-# Clean up the temporary file
-rm "$TEMP_FILE"
-
-echo -ne "${GREEN}Crontab updated successfully.${NC}"
+echo -e "${GREEN}Crontab updated successfully.${NC}"
 
 
 ######################
@@ -695,29 +713,37 @@ echo -ne "${GREEN}Crontab updated successfully.${NC}"
 ######################
 
 echo
+echo
 echo -e "${GREEN}REMEMBER: ${NC}"
 echo
-sleep 0.5 # delay for 0.5 seconds
+echo
 echo -e "${GREEN} Unbound will listen on all interfaces, with access limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
-echo -e "${GREEN} One Local A Record(${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in Local Subnet Zone ${NC}"
+echo
+echo -e "${GREEN} One Local A Record(${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in${NC} Local Subnet Zone "
 echo
 echo -e "${GREEN} Additional Subnet Zones/Local A Records must be configured in:${NC} /etc/unboun/unboud.conf"
 echo
-echo -e "${GREEN} Queries that cannot be answered locally Unbound will forward to upstream DNS servers, ${NC}"
-echo -e "${GREEN} using DNS-over-TLS (DoT) for encryption, enhancing privacy and security.  ${NC}"
+echo -e "${GREEN} Queries that cannot be answered locally Unbound will forward to${NC} Upstream DNS servers, "
+echo
+echo -e "${GREEN} Using${NC} DNS-over-TLS (DoT) ${GREEN}for encryption, enhancing privacy and security ${NC}"
+echo
 echo -e "${GREEN} Forwarders:${NC} Quad9${GREEN},${NC} Cloudflare${GREEN}, and optionally${NC} Google ${GREEN}(must be enabled) ${NC}"
 echo
-echo -e "${GREEN} If Forwarder are disabled Unbound will operate as a Recursive DNS Resolver.${NC}"
-echo -e "${GREEN} This aproach will prioritize privacy, security, and independence from third-party DNS services.${NC}"
+echo -e "${GREEN} If Forwarder are disabled, Unbound will operate as a${NC} Recursive DNS Resolver"
 echo
-echo -e "${GREEN} If you have opted for installing Pi-Hole, then  ${NC}"
+echo -e "${GREEN} This aproach will prioritize privacy, security, and independence from third-party DNS services${NC}"
+echo
+echo -e "${GREEN} If you have opted for installing${NC} Pi-Hole "
+echo
 echo -e "${GREEN} Pi-hole will filter and block unwanted internet domains at the DNS level,  ${NC}"
+echo
 echo -e "${GREEN} acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
 echo
-echo -e "${GREEN} Point your Subnets or individual Clients to Pi-Hole IP Address${NC}"
+echo -e "${GREEN} Point your Subnets or individual Clients to${NC} Pi-Hole IP Address: $IP_ADDRESS"
 echo
 echo -e "${GREEN} Pi-hole Dashboard can be found at:${NC} http://$IP_ADDRESS/admin ${GREEN}or,${NC}"
-echo -e "${GREEN} If Local A Record is properly configured, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
+echo
+echo -e "${GREEN} If Local A Record (Unbound) is properly configured, at:${NC} http://$HOST_NAME.$DOMAIN_NAME/admin"
 echo
 echo
 
