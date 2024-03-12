@@ -41,26 +41,29 @@ echo
 ######################################
 
 while true; do
-    echo -e "${GREEN}Start installation and configuration? (y/n) ${NC}"
+    echo -e "${GREEN}Start installation and configuration?${NC} (yes/no) "
+    echo
     read choice
+    echo
+    choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]') # Convert input to lowercase
 
-    # Check if user entered "y" or "Y"
-    if [[ "$choice" == [yY] ]]; then
-
+    # Check if user entered "yes"
+    if [[ "$choice" == "yes" ]]; then
         # Confirming the start of the script
+        echo
         echo -e "${GREEN}Starting... ${NC}"
         sleep 0.5 # delay for 0.5 second
         echo
         break
 
-    # If user entered "n" or "N", exit the script
-    elif [[ "$choice" == [nN] ]]; then
+    # Check if user entered "no"
+    elif [[ "$choice" == "no" ]]; then
         echo -e "${RED}Aborting script. ${NC}"
         exit
 
     # If user entered anything else, ask them to correct it
     else
-        echo -e "${YELLOW}Invalid input. Please enter${NC} 'y' or 'n' "
+        echo -e "${YELLOW}Invalid input. Please enter${NC} 'yes' or 'no'"
     fi
 done
 
@@ -155,40 +158,34 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 # Extract the domain name from /etc/resolv.conf
-DOMAIN_NAME=$(grep '^domain' /etc/resolv.conf | awk '{print $2}')
+domain_name=$(awk -F' ' '/^domain/ {print $2; exit}' /etc/resolv.conf)
 
-# Check if DOMAIN_NAME has a value
-if [ -z "$DOMAIN_NAME" ]; then
-    echo -e "${RED}Could not determine the domain name from${NC} /etc/resolv.conf ${RED}Skipping operations that require the domain name.${NC}"
-else
-    # Continue with operations that require DOMAIN_NAME
-    # Identify the host's primary IP address and hostname
-    HOST_IP=$(hostname -I | awk '{print $1}')
-    HOST_NAME=$(hostname)
+# Get the host's IP address and hostname
+host_ip=$(hostname -I | awk '{print $1}')
+host_name=$(hostname)
 
-    # Skip /etc/hosts update if HOST_IP or HOST_NAME are not determined
-    if [ -z "$HOST_IP" ] || [ -z "$HOST_NAME" ]; then
-        echo -e "${RED}Could not determine the host IP address or hostname. Skipping${NC} /etc/hosts ${RED}update${NC}"
-    else
-        # Display the extracted domain name, host IP, and hostname
-        echo -e "${GREEN}Domain name:${NC} $DOMAIN_NAME"
-        echo -e "${GREEN}Host IP:${NC} $HOST_IP"
-        echo -e "${GREEN}Hostname:${NC} $HOST_NAME"
+# Construct the new line for /etc/hosts
+new_line="$host_ip $host_name $host_name.$domain_name"
 
-        # Remove any existing lines with the current hostname in /etc/hosts
-        sudo sed -i "/$HOST_NAME/d" /etc/hosts
+# Create a temporary file with the desired contents
+{
+    echo "# Your system has configured 'manage_etc_hosts' as True."
+    echo "# As a result, if you wish for changes to this file to persist"
+    echo "# then you will need to either"
+    echo "# a.) make changes to the master file in /etc/cloud/templates/hosts.debian.tmpl"
+    echo "# b.) change or remove the value of 'manage_etc_hosts' in"
+    echo "# /etc/cloud/cloud.cfg or cloud-config from user-data"
+    echo ""
+    echo "$new_line"
+    echo "============================================"
+    # Replace the line containing the current hostname with the new line
+    awk -v hostname="$host_name" -v new_line="$new_line" '!($0 ~ hostname) || $0 == new_line' /etc/hosts
+} > /tmp/hosts.tmp
 
-        # Prepare the new line in the specified format
-        NEW_LINE="$HOST_IP"$'\t'"$HOST_NAME $HOST_NAME.$DOMAIN_NAME"
+# Move the temporary file to /etc/hosts
+sudo mv /tmp/hosts.tmp /etc/hosts
 
-        # Insert the new line directly below the 127.0.0.1 localhost line
-        sudo awk -v newline="$NEW_LINE" '/^127.0.0.1 localhost$/ { print; print newline; next }1' /etc/hosts | sudo tee /etc/hosts.tmp > /dev/null && sudo mv /etc/hosts.tmp /etc/hosts
-        echo
-        echo -e "${GREEN}File${NC} /etc/hosts ${GREEN}has been updated.${NC}"
-    fi
-
-    # Continue with any other operations that require DOMAIN_NAME
-fi
+echo -e "${GREEN} File${NC} /etc/hosts ${GREEN}has been updated ${NC}"
 
 
 ####################
