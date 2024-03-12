@@ -717,6 +717,11 @@ echo -e "${GREEN} Crontab updated successfully.${NC}"
 # Info before reboot #
 ######################
 
+domain_name=$(awk -F' ' '/^domain/ {print $2; exit}' /etc/resolv.conf)
+host_ip=$(hostname -I | awk '{print $1}')
+host_name=$(hostname)
+new_line="$host_ip $host_name $host_name.$domain_name"
+
 echo
 echo
 echo -e "${GREEN}REMEMBER: ${NC}"
