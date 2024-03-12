@@ -355,7 +355,7 @@ done
 #done
 
 HOST_NAME_LOCAL=$(hostname)
-IP_LOCAL=host_ip=$(hostname -I | awk '{print $1}')
+IP_LOCAL=$(hostname -I | awk '{print $1}')
 
 echo
 
