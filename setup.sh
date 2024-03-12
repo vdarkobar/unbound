@@ -556,10 +556,11 @@ EOF
                 ################################
                 
                 # Set Pi-Hole automatic update cron jobs
-                JOB1="0 2 1 * * pihole -up"
-                JOB2="0 3 1 * * pihole -g"
+                JOB1="# Pi-Hole automatic update"
+                JOB2="0 2 1 * * pihole -up"
+                JOB3="0 3 1 * * pihole -g"
 
-                for job in "$JOB1" "$JOB2"; do
+                for job in "$JOB1" "$JOB2" "$JOB3"; do
                     if (crontab -l 2>/dev/null; echo "$job") | crontab -; then
                         echo -e "${GREEN} Job added to${NC} crontab"
                     else
@@ -736,7 +737,6 @@ IP_ADDRESS=$(hostname -I | awk '{print $1}')
 host_name=$(hostname)
 pi_hole="http://$host_name.$domain_name/admin"
 
-echo
 echo
 echo -e "${GREEN}REMEMBER: ${NC}"
 echo
