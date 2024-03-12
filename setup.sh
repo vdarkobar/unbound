@@ -34,7 +34,7 @@ echo -e "${GREEN} You'll be asked to enter: ${NC}"
 echo -e " - One Local Subnet for Access Control"
 echo -e " - One entry for Local DNS Lookup (hostname/ip)"
 echo
-echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter: Pi-Hole Dashboard Admin Password ${NC}"
+echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter:${NC}"
 echo -e " - Pi-Hole Dashboard Admin Password"
 echo
 
@@ -335,27 +335,24 @@ while true; do
 done
 
 # Ask and validate HOST_NAME_LOCAL
-#while true; do
-#  read -p "Enter Machine Host Name (Format example: server01): " HOST_NAME_LOCAL
-#  if echo "$HOST_NAME_LOCAL" | grep -Eq '^[a-zA-Z0-9\-]+$'; then
-#    break
-#  else
-#    echo -e "${RED} Error: Host name format is invalid. Use only alphanumeric characters and hyphens. ${NC}"
-#  fi
-#done
+while true; do
+  read -p "Enter Machine Host Name (Format example: server01): " HOST_NAME_LOCAL
+  if echo "$HOST_NAME_LOCAL" | grep -Eq '^[a-zA-Z0-9\-]+$'; then
+    break
+  else
+    echo -e "${RED} Error: Host name format is invalid. Use only alphanumeric characters and hyphens. ${NC}"
+  fi
+done
 
 # Ask and validate IP_LOCAL
-#while true; do
-#  read -p "Enter IP address for the Host you have named (Format example: 192.168.1.11): " IP_LOCAL
-#  if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-#    break
-#  else
-#    echo -e "${RED} Error: IP Address format is invalid. Please enter a valid${NC} IPv4 ${RED}address. ${NC}"
-#  fi
-#done
-
-HOST_NAME_LOCAL=$(hostname)
-IP_LOCAL=$(hostname -I | awk '{print $1}')
+while true; do
+  read -p "Enter IP address for the Host you have named (Format example: 192.168.1.11): " IP_LOCAL
+  if echo "$IP_LOCAL" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+    break
+  else
+    echo -e "${RED} Error: IP Address format is invalid. Please enter a valid${NC} IPv4 ${RED}address. ${NC}"
+  fi
+done
 
 echo
 
@@ -730,13 +727,15 @@ echo
 echo -e "${GREEN}REMEMBER: ${NC}"
 echo
 echo
-echo -e "${GREEN} - Unbound will listen on all interfaces, with access limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
+echo -e "${GREEN} - Unbound will listen on${NC} all interfaces${GREEN}, with access limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo
-echo -e "${GREEN} - One Local A Record(${NC} $HOST_NAME_LOCAL ${GREEN}) is defined in${NC} Local Subnet Zone "
+echo -e "${GREEN} - Access limited to one Subnet:${NC} $LOCAL_SUBNET_ACCESS"
 echo
-echo -e "${GREEN}   Additional Subnet Zones/Local A Records must be configured in:${NC} /etc/unboun/unboud.conf"
+echo -e "${GREEN} - One Local A Record defined:${NC} $HOST_NAME_LOCAL"
 echo
-echo -e "${GREEN} - Queries that cannot be answered locally Unbound will forward to${NC} Upstream DNS servers, "
+echo -e "${GREEN}   to continue configuring edit:${NC} /etc/unboun/unboud.conf"
+echo
+echo -e "${GREEN} - Queries that cannot be answered locally Unbound will forward to${NC} Upstream DNS servers,"
 echo
 echo -e "${GREEN}   using${NC} DNS-over-TLS (DoT) ${GREEN}for encryption, enhancing privacy and security ${NC}"
 echo
@@ -746,11 +745,9 @@ echo -e "${GREEN}   If Forwarder are disabled, Unbound will operate as a${NC} Re
 echo
 echo -e "${GREEN}   This aproach will prioritize privacy, security, and independence from third-party DNS services${NC}"
 echo
-echo -e "${GREEN} - If you have opted for installing${NC} Pi-Hole "
+echo -e "${GREEN} - If you have opted for installing${NC} Pi-Hole"
 echo
-echo -e "${GREEN}   Pi-hole will filter and block unwanted internet domains at the DNS level,  ${NC}"
-echo
-echo -e "${GREEN}   acting as a network-wide ad blocker, using Unbound in the background. ${NC}"
+echo -e "${GREEN}   it will act as a network-wide ad blocker, using Unbound in the background  ${NC}"
 echo
 echo -e "${GREEN} - Point your Subnets or individual Clients to${NC} Pi-Hole ${GREEN}IP Address:${NC} $IP_ADDRESS"
 echo
