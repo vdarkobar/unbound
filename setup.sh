@@ -81,7 +81,7 @@ echo -e "${GREEN} Installing Unbound and other packages ${NC}"
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-if ! sudo apt -y install unbound net-tools tcpdump ca-certificates; then
+if ! sudo nala -y install unbound net-tools tcpdump ca-certificates; then
     echo -e "${RED} Failed to install packages. Exiting.${NC}"
     exit 1
 fi
@@ -415,7 +415,7 @@ ask_to_execute_commands() {
                 # Install necesary package and perform hw clock check #
                 #######################################################
                 
-                sudo apt install expect -y
+                sudo nala install expect -y
                 sudo hwclock --hctosys
 
 
