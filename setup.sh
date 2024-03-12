@@ -324,6 +324,9 @@ echo -e "${GREEN} Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${N
 echo
 # User input
 
+num_lines=$(tput lines)
+echo -e "\033[${num_lines}A\033[0J"
+
 # Ask and validate LOCAL_SUBNET_ACCESS
 while true; do
   read -p "Enter Local Subnet for Access Control (Format example: 192.168.10.0/24): " LOCAL_SUBNET_ACCESS
@@ -391,6 +394,9 @@ sleep 0.5 # delay for 0.5 seconds
 #############################
 # Option to install Pi-Hole #
 #############################
+
+num_lines=$(tput lines)
+echo -e "\033[${num_lines}A\033[0J"
 
 # Function to ask the user if they want to Install Pi-Hole
 ask_to_execute_commands() {
@@ -716,6 +722,9 @@ echo -e "${GREEN} Crontab updated successfully.${NC}"
 ######################
 # Info before reboot #
 ######################
+
+num_lines=$(tput lines)
+echo -e "\033[${num_lines}A\033[0J"
 
 domain_name=$(awk -F' ' '/^domain/ {print $2; exit}' /etc/resolv.conf)
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
