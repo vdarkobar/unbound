@@ -23,16 +23,17 @@ NC='\033[0m'
 #################
 
 echo
-echo -e "${GREEN} This script will install and configure Unbound and, optionaly, Pi-Hole ${NC}"
+echo -e "${GREEN} This script will install and configure Unbound DNS and, optionaly, Pi-Hole Add blocker ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
 
 echo -e "${GREEN} You'll be asked to enter: ${NC}"
-echo -e "${GREEN} - One Local Subnet for Access Control, ${NC}"
-echo -e "${GREEN} - One Host Name for the Client Machine and it's IP Address. ${NC}"
+echo -e " - One Local Subnet for Access Control"
+echo -e " - One entry for Local DNS Lookup (hostname/ip)"
 echo
-echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter Pi-Hole Dashboard Admin Password ${NC}"
+echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter: - Pi-Hole Dashboard Admin Password ${NC}"
+echo -e " - Pi-Hole Dashboard Admin Password"
 echo
 
 
@@ -637,8 +638,8 @@ EOF
                 break # Exit the loop and continue with the rest of the script
                 ;;
             *)
-                echo
                 echo -e "${RED}Error: Please answer${NC} 'yes' or 'no' "
+                echo
                 ;;
         esac
     done
@@ -659,6 +660,7 @@ echo
 
 if sudo cp unbound.conf /etc/unbound/unbound.conf; then
     echo -e "${GREEN}File${NC} unbound.conf ${GREEN}copied successfully. ${NC}"
+    echo
 else
     echo -e "${RED}Error: Failed to copy file${NC} unbound.conf ${RED}to${NC} /etc/unbound/ ${NC}"
 fi
@@ -705,6 +707,7 @@ else
     update_crontab || { echo -e "${RED}Failed to update the crontab.${NC}"; exit 1; }
 fi
 
+echo
 echo -e "${GREEN}Crontab updated successfully.${NC}"
 
 
@@ -754,10 +757,11 @@ echo
 
 while true; do
     read -p "Do you want to reboot the server now (recommended)? (yes/no): " response
+    echo
     case "${response,,}" in
-        yes|y) echo; echo -e "${GREEN}Rebooting the server...${NC}"; sudo reboot; break ;;
+        yes|y) echo -e "${GREEN}Rebooting the server...${NC}"; sudo reboot; break ;;
         no|n) echo -e "${RED}Reboot cancelled.${NC}"; exit 0 ;;
-        *) echo -e "${YELLOW}Invalid response. Please answer${NC} yes or no." ;;
+        *) echo -e "${YELLOW}Invalid response. Please answer${NC} yes or no."; echo ;;
     esac
 done
 
