@@ -79,7 +79,13 @@ echo -e "${GREEN} Installing Unbound and other packages ${NC}"
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-if ! sudo apt -y install unbound ufw net-tools tcpdump ca-certificates curl expect; then
+# Update the package repositories
+if ! sudo apt update; then
+    echo -e "${RED}Failed to update package repositories. Exiting.${NC}"
+    exit 1
+fi
+
+if ! sudo apt -y install unbound ufw ca-certificates curl expect; then
     echo -e "${RED} Failed to install packages. Exiting.${NC}"
     exit 1
 fi
