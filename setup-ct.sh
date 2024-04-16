@@ -435,55 +435,6 @@ echo
 sleep 0.5 # delay for 0.5 seconds
 
 
-#################################
-# Create pihole-install.sh file #
-#################################
-
-# Define the path to the directory and the file
-file_path="$WORK_DIR/pihole-install.sh"
-
-# Check if the WORK_DIR variable is set
-if [ -z "$WORK_DIR" ]; then
-    echo -e "${RED} Error: WORK_DIR variable is not set${NC}"
-    exit 1
-fi
-
-# Create or overwrite the unbound.conf file, using sudo for permissions
-echo -e "${GREEN} Creating pihole-install.sh file...:${NC} $file_path"
-
-sudo tee "$file_path" > /dev/null <<EOF || { echo "Error: Failed to create $file_path"; exit 1; }
-#!/usr/bin/expect -f
-
-set timeout 120
-
-# Spawn the installation command directly
-spawn /bin/bash -c "curl -sSL https://install.pi-hole.net | sudo bash"
-
-# Example handling of the installation script prompts
-expect "Existing Install Detected" {
-    send "yes\r"
-}
-
-# Continue with other prompts as necessary
-
-expect eof
-EOF
-
-# Making script executable
-sudo chmod +x $file_path
-
-# Check if the file was created successfully
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${RED} Error: Failed to create${NC} $file_path"
-    exit 1
-fi
-
-echo
-echo -e "${GREEN} pihole-install.sh file created successfully:${NC} $file_path"
-echo
-
-
 ######################
 # Prepare hosts file #
 ######################
@@ -900,10 +851,23 @@ EOF
                 # Run Pi-Hole install Script #
                 ##############################
                 
-                #cd $WORK_DIR
+                # Script
+                #curl -sSL https://install.pi-hole.net | sudo bash
 
-                # Script is executable and has a shebang line
-                curl -sSL https://install.pi-hole.net | sudo bash
+
+# Run installation with expect
+expect <<'END_EXPECT'
+set timeout 120
+spawn /bin/bash -c "curl -sSL https://install.pi-hole.net | sudo bash"
+
+# Handle installation prompts
+expect "Existing Install Detected" {
+    send "yes\r"
+}
+
+# Wait for the end of the process
+expect eof
+END_EXPECT
 
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
