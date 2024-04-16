@@ -511,6 +511,7 @@ new_line="$host_ip $host_name $host_name.$domain_name"
 sudo mv /tmp/hosts.tmp /etc/hosts
 
 echo -e "${GREEN} File${NC} /etc/hosts ${GREEN}has been updated ${NC}"
+echo
 
 
 ##################
@@ -572,7 +573,6 @@ echo
 # Update root hints #
 #####################
 
-echo
 echo -e "${GREEN} Updating root hints file ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -649,7 +649,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo -e "${GREEN} Modifications completed successfully. ${NC}"
-
+echo
 
 #############################
 # Option to install Pi-Hole #
@@ -672,7 +672,7 @@ ask_to_execute_commands() {
                 # Install necesary package and perform hw clock check #
                 #######################################################
                 
-                sudo apt install expect -y
+                sudo apt install curl expect -y
                 sudo hwclock --hctosys
 
 
