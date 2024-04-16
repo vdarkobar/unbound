@@ -344,7 +344,6 @@ echo
 # Preparing Unbound configuration file #
 ########################################
 
-echo
 echo -e "${GREEN} Preparing Unbound configuration file:${NC} unbound.conf"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -364,7 +363,6 @@ sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" $file_path
 
 echo -e "${GREEN} Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} $file_path"
 sleep 1 # delay for 1 second
-echo
 
 # User input
 #num_lines=$(tput lines)
@@ -490,7 +488,6 @@ echo
 # Prepare hosts file #
 ######################
 
-echo
 echo -e "${GREEN} Setting up hosts file ${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -672,7 +669,6 @@ ask_to_execute_commands() {
         case "${answer,,}" in
             yes|y)
                 echo -e "${GREEN} Preconfiguring and installing Pi-Hole...${NC}"
-                echo
 
 
                 #######################################################
@@ -713,7 +709,6 @@ PIHOLE_DNS_2=
 EOF
                 echo
                 echo -e "${GREEN} File${NC} setupVars.conf ${GREEN}created successfully.${NC}"
-                echo
 
 
                 #################################################################################
@@ -906,7 +901,8 @@ EOF
                 ##############################
                 
                 # Script is executable and has a shebang line
-                ./$file_path
+                #./$file_path
+                .$WORK_DIR/pihole-install.sh
 
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
