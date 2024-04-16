@@ -79,7 +79,7 @@ echo -e "${GREEN} Installing Unbound and other packages ${NC}"
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-if ! sudo apt -y install unbound ufw net-tools tcpdump ca-certificates; then
+if ! sudo apt -y install unbound ufw net-tools tcpdump ca-certificates curl expect; then
     echo -e "${RED} Failed to install packages. Exiting.${NC}"
     exit 1
 fi
@@ -357,11 +357,12 @@ fi
 sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" $file_path
 
 echo -e "${GREEN} Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} $file_path"
+sleep 1 # delay for 1 second
 echo
-# User input
 
-num_lines=$(tput lines)
-echo -e "\033[${num_lines}A\033[0J"
+# User input
+#num_lines=$(tput lines)
+#echo -e "\033[${num_lines}A\033[0J"
 
 # Ask and validate LOCAL_SUBNET_ACCESS
 while true; do
@@ -672,8 +673,8 @@ ask_to_execute_commands() {
                 # Install necesary package and perform hw clock check #
                 #######################################################
                 
-                sudo apt install curl expect -y
-                sudo hwclock --hctosys
+#                sudo apt install curl expect -y
+#                sudo hwclock --hctosys
 
 
                 ##############################
@@ -733,8 +734,8 @@ EOF
                     sed -i "s/SHA-256/$hash/" "$config_file" || echo -e "${RED} Error: Failed to replace the placeholder in $config_file${NC}" >&2
                 }
 
-                num_lines=$(tput lines)
-                echo -e "\033[${num_lines}A\033[0J"
+#                num_lines=$(tput lines)
+#                echo -e "\033[${num_lines}A\033[0J"
 
                 # Loop until a valid password is entered
                 while true; do
@@ -996,8 +997,8 @@ sleep 0.5 # delay for 0.5 seconds
 # Info before reboot #
 ######################
 
-num_lines=$(tput lines)
-echo -e "\033[${num_lines}A\033[0J"
+#num_lines=$(tput lines)
+#echo -e "\033[${num_lines}A\033[0J"
 
 domain_name=$(awk -F' ' '/^domain/ {print $2; exit}' /etc/resolv.conf)
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
