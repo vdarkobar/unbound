@@ -900,9 +900,10 @@ EOF
                 # Run Pi-Hole install Script #
                 ##############################
                 
+                cd $WORK_DIR
+
                 # Script is executable and has a shebang line
-                #./$file_path
-                .$WORK_DIR/pihole-install.sh
+                ./pihole-install.sh
 
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
