@@ -85,7 +85,7 @@ if ! sudo apt update; then
     exit 1
 fi
 
-if ! sudo apt -y install unbound ufw ca-certificates curl expect; then
+if ! sudo apt -y install unbound ufw ca-certificates curl; then
     echo -e "${RED} Failed to install packages. Exiting.${NC}"
     exit 1
 fi
@@ -117,8 +117,7 @@ else
     echo -e "${YELLOW} Backup of${NC} /etc/dhcp/dhclient.conf ${YELLOW}already exists. Skipping backup.${NC}"
 fi
 
-# Before modifying Unbound configuration files, create backups if they don't already exist
-
+# Before modifying Unbound configuration files, create backups if they don't already exist (option for multiple files)
 UNBOUND_FILES=(
     "/etc/unbound/unbound.conf"
 )
@@ -537,19 +536,6 @@ wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/r
 echo
 
 
-##############################
-# Improve avg response times #
-##############################
-
-echo
-echo -e "${GREEN} Adding options to sysctl.conf file ${NC}"
-
-sleep 0.5 # delay for 0.5 seconds
-echo
-
-echo "net.core.rmem_max=8388608" | sudo tee -a /etc/sysctl.conf > /dev/null && sudo sysctl -p
-
-
 #############################
 # Modify dhclient.conf file #
 #############################
@@ -606,6 +592,7 @@ fi
 echo -e "${GREEN} Modifications completed successfully. ${NC}"
 echo
 
+
 #############################
 # Option to install Pi-Hole #
 #############################
@@ -622,11 +609,10 @@ ask_to_execute_commands() {
                 echo -e "${GREEN} Preconfiguring and installing Pi-Hole...${NC}"
 
 
-                #######################################################
-                # Install necesary package and perform hw clock check #
-                #######################################################
+                ##########################
+                # Perform hw clock check #
+                ##########################
                 
-#                sudo apt install curl expect -y
 #                sudo hwclock --hctosys
 
 
@@ -799,7 +785,7 @@ EOF
                     echo
                     echo -e "${GREEN} File copied successfully.${NC}"
                 else
-                    echo -e "${RED} Failed to copy file.${NC}"
+                    echo -e "${RED} Failed to copy file:${NC} setupVars.conf"
                     exit 1
                 fi
 
@@ -852,22 +838,7 @@ EOF
                 ##############################
                 
                 # Script
-                #curl -sSL https://install.pi-hole.net | sudo bash
-
-
-# Run installation with expect
-expect <<'END_EXPECT'
-set timeout 120
-spawn /bin/bash -c "curl -sSL https://install.pi-hole.net | sudo bash"
-
-# Handle installation prompts
-expect "Existing Install Detected" {
-    send "yes\r"
-}
-
-# Wait for the end of the process
-expect eof
-END_EXPECT
+                curl -sSL https://install.pi-hole.net | sudo bash
 
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
