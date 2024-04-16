@@ -900,10 +900,10 @@ EOF
                 # Run Pi-Hole install Script #
                 ##############################
                 
-                cd $WORK_DIR
+                #cd $WORK_DIR
 
                 # Script is executable and has a shebang line
-                ./pihole-install.sh
+                curl -sSL https://install.pi-hole.net | sudo bash
 
                 # Check the exit status of the last command
                 if [ $? -eq 0 ]; then
