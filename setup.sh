@@ -2,8 +2,6 @@
 
 clear
 
-WORK_DIR=$(pwd)
-
 ##############################################################
 # Define ANSI escape sequence for green, red and yellow font #
 ##############################################################
@@ -70,6 +68,47 @@ while true; do
         echo
     fi
 done
+
+
+################################
+# Setting up working directory #
+################################
+
+# Loop until a non-empty directory name is entered
+while true; do
+    echo -e "${GREEN} Enter Working directory name: ${NC}"
+    echo
+    read -r NAME
+
+    # Check if the input is empty
+    if [ -z "$NAME" ]; then
+        echo
+        echo -e "${RED} Error: Directory name cannot be empty. Please try again.${NC}"
+        continue
+    fi
+
+    # Create the directory and change to it
+    mkdir -p "$NAME" 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${RED} Error: Failed to create directory $NAME. Please try again.${NC}"
+        continue
+    fi
+
+    cd "$NAME" && break
+    echo
+    echo -e "${RED} Error: Failed to change directory to $NAME. Please try again.${NC}"
+done
+
+# Set the WORK_DIR variable
+WORK_DIR=$(pwd)
+
+# Scrol to top
+num_lines=$(tput lines)
+echo -e "\033[${num_lines}A\033[0J"
+
+echo -e "${GREEN} Working directory:${NC} $WORK_DIR"
+echo
 
 
 ###################
@@ -296,13 +335,202 @@ if [ $? -ne 0 ]; then
 fi
 
 echo -e "${GREEN} Modifications completed successfully. ${NC}"
+echo
+
+############################
+# Create unbound.conf file #
+############################
+
+# Define the path to the directory and the file
+file_path="$WORK_DIR/unbound.conf"
+
+# Check if the WORK_DIR variable is set
+if [ -z "$WORK_DIR" ]; then
+    echo -e "${RED} Error: WORK_DIR variable is not set${NC}"
+    exit 1
+fi
+
+# Create or overwrite the unbound.conf file, using sudo for permissions
+echo -e "${GREEN} Creating unbound.conf file...:${NC} $file_path"
+
+sudo tee "$file_path" > /dev/null <<EOF || { echo "Error: Failed to create $file_path"; exit 1; }
+# Unbound configuration file for Debian.
+#
+# See the unbound.conf(5) man page.
+#
+# See /usr/share/doc/unbound/examples/unbound.conf for a commented
+# reference config file.
+#
+# The following line includes additional configuration files from the
+# /etc/unbound/unbound.conf.d directory.
+include-toplevel: "/etc/unbound/unbound.conf.d/*.conf"
+
+# Authoritative, validating, recursive caching DNS with DNS-Over-TLS support
+server:
+
+    # Limit permissions 
+    username: "unbound"
+    # Working directory
+    directory: "/etc/unbound"
+    # Chain of Trust
+    tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt
+
+# Send minimal amount of information to upstream servers to enhance privacy
+    qname-minimisation: yes
+
+# Centralized logging
+    use-syslog: yes
+    # Increase to get more logging.
+    verbosity: 2
+    # For every user query that fails a line is printed
+    val-log-level: 2
+    # Logging of DNS queries
+    log-queries: yes
+
+
+# Root hints
+    root-hints: /usr/share/dns/root.hints
+    harden-dnssec-stripped: yes
+
+
+# Listen on all interfaces, answer queries from the local subnet (access-control:).
+    interface: 0.0.0.0
+    interface: ::0
+
+    do-ip4: yes
+    do-ip6: yes
+    do-udp: yes
+    do-tcp: yes
+
+    # Ports
+    port: 53
+    tls-port: 853
+
+    # Use TCP connections for all upstream communications
+    tcp-upstream: yes
+
+
+# perform prefetching of almost expired DNS cache entries.
+    prefetch: yes
+
+
+# Enable DNS Cache
+    cache-max-ttl: 14400
+    cache-min-ttl: 1200
+
+
+# Unbound Privacy and Security
+    aggressive-nsec: yes
+    hide-identity: yes
+    hide-version: yes
+    use-caps-for-id: yes
+
+
+# Define Private Network and Access Control Lists (ACLs)
+    private-address: 192.168.0.0/16
+    private-address: 169.254.0.0/16
+    private-address: 172.16.0.0/12
+    private-address: 10.0.0.0/8
+    private-address: fd00::/8
+    private-address: fe80::/10
+
+    # Control which clients are allowed to make (recursive) queries
+    access-control: 127.0.0.1/32 allow_snoop
+    access-control: ::1 allow_snoop
+    access-control: 127.0.0.0/8 allow
+    access-control: LOCAL_SUBNET_ACCESS allow
+
+    # Setup Local Domain
+    private-domain: "DOMAIN_NAME_LOCAL"
+    domain-insecure: "DOMAIN_NAME_LOCAL"
+    local-zone: "DOMAIN_NAME_LOCAL." static
+
+    # A Records Local
+    local-data: "HOST_NAME_LOCAL.DOMAIN_NAME_LOCAL. IN A IP_LOCAL"
+
+    # Reverse Lookups Local
+    local-data-ptr: "IP_LOCAL HOST_NAME_LOCAL.DOMAIN_NAME_LOCAL"
+
+
+   # Blocking Ad Server domains. Google's AdSense, DoubleClick and Yahoo
+   # account for a 70 percent share of all advertising traffic. Block them.
+   # Not guarantied use browser extensions like uBlock Origin, Adblock Plus,
+   # or network-wide ad blockers e.g. Pi-hole
+   local-zone: "doubleclick.net" redirect
+   local-data: "doubleclick.net A 127.0.0.1"
+   local-zone: "googlesyndication.com" redirect
+   local-data: "googlesyndication.com A 127.0.0.1"
+   local-zone: "googleadservices.com" redirect
+   local-data: "googleadservices.com A 127.0.0.1"
+   local-zone: "google-analytics.com" redirect
+   local-data: "google-analytics.com A 127.0.0.1"
+   local-zone: "ads.youtube.com" redirect
+   local-data: "ads.youtube.com A 127.0.0.1"
+   local-zone: "adserver.yahoo.com" redirect
+   local-data: "adserver.yahoo.com A 127.0.0.1"
+   local-zone: "ask.com" redirect
+   local-data: "ask.com A 127.0.0.1"
+
+
+# Unbound Performance Tuning and Tweak
+    num-threads: 4
+    msg-cache-slabs: 8
+    rrset-cache-slabs: 8
+    infra-cache-slabs: 8
+    key-cache-slabs: 8
+    rrset-cache-size: 256m
+    msg-cache-size: 128m
+    so-rcvbuf: 8m
+
+
+# Use DNS over TLS
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+    # Quad9 DNS
+    forward-addr: 9.9.9.9@853#dns.quad9.net
+    forward-addr: 149.112.112.112@853#dns.quad9.net
+    forward-addr: 2620:fe::11@853#dns.quad9.net
+    forward-addr: 2620:fe::fe:11@853#dns.quad9.net 
+    # Quad9 DNS (Malware Blocking + Privacy) slower
+ #   forward-addr: 9.9.9.11@853#dns11.quad9.net
+ #   forward-addr: 149.112.112.11@853#dns11.quad9.net
+ #   forward-addr: 2620:fe::11@853#dns11.quad9.net
+ #   forward-addr: 2620:fe::fe:11@853#dns11.quad9.net
+
+    # Cloudflare DNS
+    forward-addr: 1.1.1.1@853#cloudflare-dns.com
+    forward-addr: 1.0.0.1@853#cloudflare-dns.com
+    forward-addr: 2606:4700:4700::1111@853#cloudflare-dns.com
+    forward-addr: 2606:4700:4700::1001@853#cloudflare-dns.com
+    # Cloudflare DNS (Malware Blocking) slower
+ #   forward-addr: 1.1.1.2@853#cloudflare-dns.com
+ #   forward-addr: 2606:4700:4700::1112@853#cloudflare-dns.com
+ #   forward-addr: 1.0.0.2@853#cloudflare-dns.com
+ #   forward-addr: 2606:4700:4700::1002@853#cloudflare-dns.com
+
+    # Google
+#    forward-addr: 8.8.8.8@853#dns.google
+#    forward-addr: 8.8.4.4@853#dns.google
+#    forward-addr: 2001:4860:4860::8888@853#dns.google
+#    forward-addr: 2001:4860:4860::8844@853#dns.google
+EOF
+
+# Check if the file was created successfully
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${RED} Error: Failed to create${NC} $file_path"
+    exit 1
+fi
+
+echo
+echo -e "${GREEN} unbound.conf file created successfully:${NC} $file_path"
 
 
 ########################################
 # Preparing Unbound configuration file #
 ########################################
 
-echo
 echo -e "${GREEN} Preparing Unbound configuration file:${NC} unbound.conf"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -321,9 +549,8 @@ fi
 sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
 echo -e "${GREEN} Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} unbound.conf"
-echo
-# User input
 
+# User input
 num_lines=$(tput lines)
 echo -e "\033[${num_lines}A\033[0J"
 
@@ -392,6 +619,54 @@ echo -e "${GREEN} Configuration file updated successfully. ${NC}"
 echo
 
 sleep 0.5 # delay for 0.5 seconds
+
+
+#################################
+# Create pihole-install.sh file #
+#################################
+
+# Define the path to the directory and the file
+file_path="$WORK_DIR/pihole-install.sh"
+
+# Check if the WORK_DIR variable is set
+if [ -z "$WORK_DIR" ]; then
+    echo -e "${RED} Error: WORK_DIR variable is not set${NC}"
+    exit 1
+fi
+
+# Create or overwrite the pihole-install.sh file, using sudo for permissions
+echo -e "${GREEN} Creating pihole-install.sh file...:${NC} $file_path"
+
+sudo tee "$file_path" > /dev/null <<EOF || { echo "Error: Failed to create $file_path"; exit 1; }
+#!/usr/bin/expect -f
+
+set timeout 120
+
+# Spawn the installation command directly
+spawn /bin/bash -c "curl -sSL https://install.pi-hole.net | sudo bash"
+
+# Example handling of the installation script prompts
+expect "Existing Install Detected" {
+    send "yes\r"
+}
+
+# Continue with other prompts as necessary
+
+expect eof
+EOF
+
+# Check if the file was created successfully
+if [ $? -ne 0 ]; then
+    echo
+    echo -e "${RED} Error: Failed to create${NC} $file_path"
+    exit 1
+fi
+
+sudo chmod +x pihole-install.sh
+
+echo
+echo -e "${GREEN} pihole-install.sh file created successfully:${NC} $file_path"
+echo
 
 
 #############################
