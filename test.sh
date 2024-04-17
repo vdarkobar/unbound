@@ -76,7 +76,6 @@ done
 
 # Loop until a non-empty directory name is entered
 while true; do
-    echo
     echo -e "${GREEN} Enter Working directory name: ${NC}"
     echo
     read -r NAME
@@ -108,8 +107,8 @@ WORK_DIR=$(pwd)
 num_lines=$(tput lines)
 echo -e "\033[${num_lines}A\033[0J"
 
-echo
 echo -e "${GREEN} Working directory:${NC} $WORK_DIR"
+echo
 
 
 ###################
@@ -526,15 +525,12 @@ fi
 
 echo
 echo -e "${GREEN} unbound.conf file created successfully:${NC} $file_path"
-echo
-
 
 
 ########################################
 # Preparing Unbound configuration file #
 ########################################
 
-echo
 echo -e "${GREEN} Preparing Unbound configuration file:${NC} unbound.conf"
 
 sleep 0.5 # delay for 0.5 seconds
@@ -553,9 +549,8 @@ fi
 sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" unbound.conf
 
 echo -e "${GREEN} Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} unbound.conf"
-echo
-# User input
 
+# User input
 num_lines=$(tput lines)
 echo -e "\033[${num_lines}A\033[0J"
 
