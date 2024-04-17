@@ -18,48 +18,6 @@ YELLOW='\033[0;33m'
 NC='\033[0m'
 
 
-################################
-# Setting up working directory #
-################################
-
-# Loop until a non-empty directory name is entered
-while true; do
-    echo
-    echo -e "${GREEN} Enter Working directory name: ${NC}"
-    echo
-    read -r NAME
-
-    # Check if the input is empty
-    if [ -z "$NAME" ]; then
-        echo
-        echo -e "${RED} Error: Directory name cannot be empty. Please try again.${NC}"
-        continue
-    fi
-
-    # Create the directory and change to it
-    mkdir -p "$NAME" 2>/dev/null
-    if [ $? -ne 0 ]; then
-        echo
-        echo -e "${RED} Error: Failed to create directory $NAME. Please try again.${NC}"
-        continue
-    fi
-
-    cd "$NAME" && break
-    echo
-    echo -e "${RED} Error: Failed to change directory to $NAME. Please try again.${NC}"
-done
-
-# Set the WORK_DIR variable
-WORK_DIR=$(pwd)
-
-# Scrol to top
-num_lines=$(tput lines)
-echo -e "\033[${num_lines}A\033[0J"
-
-echo
-echo -e "${GREEN} Working directory:${NC} $WORK_DIR"
-
-
 #################
 # Intro message #
 #################
@@ -110,6 +68,48 @@ while true; do
         echo
     fi
 done
+
+
+################################
+# Setting up working directory #
+################################
+
+# Loop until a non-empty directory name is entered
+while true; do
+    echo
+    echo -e "${GREEN} Enter Working directory name: ${NC}"
+    echo
+    read -r NAME
+
+    # Check if the input is empty
+    if [ -z "$NAME" ]; then
+        echo
+        echo -e "${RED} Error: Directory name cannot be empty. Please try again.${NC}"
+        continue
+    fi
+
+    # Create the directory and change to it
+    mkdir -p "$NAME" 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo
+        echo -e "${RED} Error: Failed to create directory $NAME. Please try again.${NC}"
+        continue
+    fi
+
+    cd "$NAME" && break
+    echo
+    echo -e "${RED} Error: Failed to change directory to $NAME. Please try again.${NC}"
+done
+
+# Set the WORK_DIR variable
+WORK_DIR=$(pwd)
+
+# Scrol to top
+num_lines=$(tput lines)
+echo -e "\033[${num_lines}A\033[0J"
+
+echo
+echo -e "${GREEN} Working directory:${NC} $WORK_DIR"
 
 
 ###################
