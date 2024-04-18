@@ -386,14 +386,14 @@ auth_keys="/home/$user/.ssh/authorized_keys"
 if [ ! -d "/home/$user/.ssh" ]; then
     echo -e "${YELLOW}Creating .ssh directory...${NC}"
     sudo mkdir -p "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to create .ssh directory${NC}"; exit 1; }
-    sudo chmod 700 "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to set permissions on .ssh directory${NC}"; exit 1; }
+    #sudo chmod 700 "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to set permissions on .ssh directory${NC}"; exit 1; }
 fi
 
 # Ensure authorized_keys file exists
 if [ ! -f "$auth_keys" ]; then
     echo -e "${YELLOW}Creating authorized_keys file...${NC}"
     sudo touch "$auth_keys" || { echo -e "${RED}Error: Failed to create authorized_keys file${NC}"; exit 1; }
-    sudo chmod 600 "$auth_keys" || { echo -e "${RED}Error: Failed to set permissions on authorized_keys file${NC}"; exit 1; }
+    #sudo chmod 600 "$auth_keys" || { echo -e "${RED}Error: Failed to set permissions on authorized_keys file${NC}"; exit 1; }
 fi
 
 # Ask the user for the public key
