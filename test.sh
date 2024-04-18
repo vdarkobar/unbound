@@ -86,7 +86,7 @@ if ! sudo apt update; then
     exit 1
 fi
 
-if ! sudo apt -y install unbound ufw ca-certificates curl unattended-upgrades; then
+if ! sudo apt -y install unbound ufw fail2ban ca-certificates curl unattended-upgrades; then
     echo -e "${RED} Failed to install packages. Exiting.${NC}"
     exit 1
 fi
