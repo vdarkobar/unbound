@@ -29,9 +29,9 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 echo -e "${GREEN} You'll be asked to enter: ${NC}"
+echo -e " - Public Key to configure your SSH access to container"
 echo -e " - One Local Subnet for Access Control"
 echo -e " - One entry for Local DNS Lookup (hostname/ip)"
-echo -e " - Public Key to configure your SSH access to container"
 echo
 echo -e "${GREEN} If you opt to install Pi-Hole, you'll be asked to enter:${NC}"
 echo -e " - Pi-Hole Dashboard Admin Password"
@@ -124,6 +124,12 @@ if [ ! -f /etc/apt/apt.conf.d/50unattended-upgrades.backup ]; then
     echo -e "${GREEN} Backup of${NC} /etc/apt/apt.conf.d/50unattended-upgrades ${GREEN}created.${NC}"
 else
     echo -e "${YELLOW} Backup of${NC} /etc/apt/apt.conf.d/50unattended-upgrades ${YELLOW}already exists. Skipping backup.${NC}"
+fi
+
+# To preserve fail2ban custom settings...
+if ! sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local; then
+    echo -e "${RED}Failed to copy jail.conf to jail.local. Exiting.${NC}"
+    exit 1
 fi
 
 # Backup the existing /etc/fail2ban/jail.local file
@@ -228,12 +234,6 @@ echo -e "${GREEN}Setting up Fail2Ban...${NC}"
 # Check if Fail2Ban is installed
 if ! command -v fail2ban-server >/dev/null 2>&1; then
     echo -e "${RED}Fail2Ban is not installed. Please install Fail2Ban and try again. Exiting.${NC}"
-    exit 1
-fi
-
-# To preserve your custom settings...
-if ! sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local; then
-    echo -e "${RED}Failed to copy jail.conf to jail.local. Exiting.${NC}"
     exit 1
 fi
 
