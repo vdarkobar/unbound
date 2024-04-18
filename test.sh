@@ -371,6 +371,7 @@ fi
 
 # Reload sysctl with the new configuration
 if ! sudo sysctl -p; then
+    echo
     echo -e "${RED}Failed to reload sysctl configuration. Exiting.${NC}"
     exit 1
 fi
@@ -388,21 +389,23 @@ auth_keys="/home/$user/.ssh/authorized_keys"
 
 # Ensure .ssh directory exists
 if [ ! -d "/home/$user/.ssh" ]; then
-    echo -e "${YELLOW}Creating .ssh directory...${NC}"
+    echo -e "${GREEN} Creating .ssh directory...${NC}"
+    echo
     sudo mkdir -p "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to create .ssh directory${NC}"; exit 1; }
     #sudo chmod 700 "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to set permissions on .ssh directory${NC}"; exit 1; }
 fi
 
 # Ensure authorized_keys file exists
 if [ ! -f "$auth_keys" ]; then
-    echo -e "${YELLOW}Creating authorized_keys file...${NC}"
+    echo -e "${GREEN} Creating authorized_keys file...${NC}"
+    echo
     sudo touch "$auth_keys" || { echo -e "${RED}Error: Failed to create authorized_keys file${NC}"; exit 1; }
     #sudo chmod 600 "$auth_keys" || { echo -e "${RED}Error: Failed to set permissions on authorized_keys file${NC}"; exit 1; }
 fi
 
 # Ask the user for the public key
 while true; do
-    echo -e "${YELLOW}Please enter your public SSH key (or press Ctrl-C to cancel):${NC}"
+    echo -e "${YELLOW} Please enter your public SSH key:${NC}"
     read public_key
 
     # Check if the input was empty
@@ -551,14 +554,9 @@ echo
 # Set the WORK_DIR variable
 WORK_DIR=$(mktemp -d)
 
-# Scrol to top
-num_lines=$(tput lines)
-echo -e "\033[${num_lines}A\033[0J"
-
 echo
 echo -e "${GREEN} Working directory:${NC} $WORK_DIR"
 echo
-
 
 ############################
 # Create unbound.conf file #
