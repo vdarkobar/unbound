@@ -3,6 +3,11 @@
 clear
 
 ##############################################################
+################## T e m p l a t e  p a r t ##################
+### ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ ###
+
+
+##############################################################
 # Define ANSI escape sequence for green, red and yellow font #
 ##############################################################
 
@@ -186,6 +191,97 @@ for file in "${UNBOUND_FILES[@]}"; do
     fi
 done
 
+echo
+
+
+######################
+# Prepare hosts file #
+######################
+
+echo -e "${GREEN} Setting up hosts file ${NC}"
+
+sleep 0.5 # delay for 0.5 seconds
+echo
+
+# Extract the domain name from /etc/resolv.conf
+domain_name=$(awk -F' ' '/^domain/ {print $2; exit}' /etc/resolv.conf)
+
+# Get the host's IP address and hostname
+host_ip=$(hostname -I | awk '{print $1}')
+host_name=$(hostname)
+
+# Construct the new line for /etc/hosts
+new_line="$host_ip $host_name $host_name.$domain_name"
+
+# Create a temporary file with the desired contents
+{
+    echo "$new_line"
+    echo "============================================"
+    # Replace the line containing the current hostname with the new line
+    awk -v hostname="$host_name" -v new_line="$new_line" '!($0 ~ hostname) || $0 == new_line' /etc/hosts
+} > /tmp/hosts.tmp
+
+# Move the temporary file to /etc/hosts
+sudo mv /tmp/hosts.tmp /etc/hosts
+
+echo -e "${GREEN} File${NC} /etc/hosts ${GREEN}has been updated ${NC}"
+echo
+
+
+#############################
+# Modify dhclient.conf file #
+#############################
+
+echo
+echo -e "${GREEN} Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
+
+sleep 0.5 # delay for 0.5 seconds
+echo
+
+# Path to the dhclient.conf file
+DHCLIENT_CONF="/etc/dhcp/dhclient.conf"
+
+# Check if the dhclient.conf file exists
+if [ ! -f "$DHCLIENT_CONF" ]; then
+    echo -e "${RED} Error:${NC} $DHCLIENT_CONF ${RED}does not exist. ${NC}"
+    exit 1
+fi
+
+# Replace the specified lines
+sudo sed -i 's/domain-name, domain-name-servers, domain-search, host-name,/domain-name, domain-search, host-name,/' $DHCLIENT_CONF
+if [ $? -ne 0 ]; then
+    echo -e "${RED} Error: Failed to replace the first specified line. ${NC}"
+    exit 1
+fi
+
+sudo sed -i 's/dhcp6.name-servers, dhcp6.domain-search, dhcp6.fqdn, dhcp6.sntp-servers,/dhcp6.domain-search, dhcp6.fqdn, dhcp6.sntp-servers,/' $DHCLIENT_CONF
+if [ $? -ne 0 ]; then
+    echo -e "${RED} Error: Failed to replace the second specified line. ${NC}"
+    exit 1
+fi
+
+# Get the primary IP address of the machine
+IP_ADDRESS=$(hostname -I | awk '{print $1}')
+if [ -z "$IP_ADDRESS" ]; then
+    echo -e "${RED} Error: Failed to obtain the IP address of the machine. ${NC}"
+    exit 1
+fi
+
+# Check and replace the "prepend domain-name-servers" line with the machine's IP address
+sudo sed -i "/^#prepend domain-name-servers 127.0.0.1;/a prepend domain-name-servers ${IP_ADDRESS};" $DHCLIENT_CONF
+if [ $? -ne 0 ]; then
+    echo -e "${RED} Error: Failed to insert the machine's IP address. ${NC}"
+    exit 1
+fi
+
+# Now, find the line with the machine's IP address and add the 127.0.0.1 below it
+sudo sed -i "/^prepend domain-name-servers ${IP_ADDRESS};/a prepend domain-name-servers 127.0.0.1;" $DHCLIENT_CONF
+if [ $? -ne 0 ]; then
+    echo -e "${RED} Error: Failed to insert the${NC} 127.0.0.1 ${RED}address below the machine's IP address. ${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN} Modifications completed successfully. ${NC}"
 echo
 
 
@@ -392,7 +488,6 @@ if [ ! -d "/home/$user/.ssh" ]; then
     echo -e "${GREEN} Creating .ssh directory...${NC}"
     echo
     sudo mkdir -p "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to create .ssh directory${NC}"; exit 1; }
-    #sudo chmod 700 "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to set permissions on .ssh directory${NC}"; exit 1; }
 fi
 
 # Ensure authorized_keys file exists
@@ -400,7 +495,6 @@ if [ ! -f "$auth_keys" ]; then
     echo -e "${GREEN} Creating authorized_keys file...${NC}"
     echo
     sudo touch "$auth_keys" || { echo -e "${RED}Error: Failed to create authorized_keys file${NC}"; exit 1; }
-    #sudo chmod 600 "$auth_keys" || { echo -e "${RED}Error: Failed to set permissions on authorized_keys file${NC}"; exit 1; }
 fi
 
 # Ask the user for the public key
@@ -410,21 +504,21 @@ while true; do
 
     # Check if the input was empty
     if [ -z "$public_key" ]; then
-        echo -e "${RED}No input received, please enter a public key.${NC}"
+        echo -e "${RED} No input received, please enter a public key.${NC}"
     else
         # Validate the public key format
         if [[ "$public_key" =~ ^ssh-(rsa|dss|ecdsa|ed25519)[[:space:]][A-Za-z0-9+/]+[=]{0,2} ]]; then
             break
         else
-            echo -e "${RED}Invalid SSH key format. Please enter a valid SSH public key.${NC}"
+            echo -e "${RED} Invalid SSH key format. Please enter a valid SSH public key.${NC}"
         fi
     fi
 done
 
 # Append the public key to the authorized_keys
-echo "$public_key" | sudo tee -a "$auth_keys" > /dev/null || { echo -e "${RED}Error: Failed to append the public key to authorized_keys${NC}"; exit 1; }
+echo "$public_key" | sudo tee -a "$auth_keys" > /dev/null || { echo -e "${RED} Error: Failed to append the public key to authorized_keys${NC}"; exit 1; }
 
-echo -e "${GREEN}Public key added successfully.${NC}"
+echo -e "${GREEN} Public key added successfully.${NC}"
 
 
 #################################
@@ -475,12 +569,8 @@ fi
 sleep 0.5 # delay for 0.5 seconds
 echo
 
-
-########################################################
 # Disabling ChallengeResponseAuthentication explicitly #
-########################################################
-
-echo -e "${GREEN}Disabling ChallengeResponseAuthentication...${NC}"
+echo -e "${GREEN} Disabling ChallengeResponseAuthentication...${NC}"
 
 # Define the line to append
 LINE="ChallengeResponseAuthentication no"
@@ -505,7 +595,7 @@ echo
 # Allow SSH only for the current Linux user #
 #############################################
 
-echo -e "${GREEN}Allowing SSH only for the current Linux user...${NC}"
+echo -e "${GREEN} Allowing SSH only for the current Linux user...${NC}"
 
 # Get the current Linux user
 user=$(whoami)
@@ -535,7 +625,7 @@ echo
 # Restart sshd #
 ################
 
-echo -e "${GREEN}Restarting sshd...${NC}"
+echo -e "${GREEN} Restarting sshd...${NC}"
 
 # Attempt to restart the sshd service
 if ! sudo systemctl restart sshd; then
@@ -545,6 +635,11 @@ fi
 
 sleep 0.5 # delay for 0.5 second
 echo
+
+
+####################################################################
+################## A p p l i c a t i o n  p a r t ##################
+### ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ ###
 
 
 ################################
@@ -773,10 +868,6 @@ sed -i "s/DOMAIN_NAME_LOCAL/$DOMAIN_NAME_LOCAL/g" $file_path
 echo -e "${GREEN} Domain name${NC} $DOMAIN_NAME_LOCAL ${GREEN}has been set in${NC} $file_path"
 sleep 1 # delay for 1 second
 
-# User input
-#num_lines=$(tput lines)
-#echo -e "\033[${num_lines}A\033[0J"
-
 # Ask and validate LOCAL_SUBNET_ACCESS
 while true; do
   echo
@@ -844,40 +935,6 @@ echo
 sleep 0.5 # delay for 0.5 seconds
 
 
-######################
-# Prepare hosts file #
-######################
-
-echo -e "${GREEN} Setting up hosts file ${NC}"
-
-sleep 0.5 # delay for 0.5 seconds
-echo
-
-# Extract the domain name from /etc/resolv.conf
-domain_name=$(awk -F' ' '/^domain/ {print $2; exit}' /etc/resolv.conf)
-
-# Get the host's IP address and hostname
-host_ip=$(hostname -I | awk '{print $1}')
-host_name=$(hostname)
-
-# Construct the new line for /etc/hosts
-new_line="$host_ip $host_name $host_name.$domain_name"
-
-# Create a temporary file with the desired contents
-{
-    echo "$new_line"
-    echo "============================================"
-    # Replace the line containing the current hostname with the new line
-    awk -v hostname="$host_name" -v new_line="$new_line" '!($0 ~ hostname) || $0 == new_line' /etc/hosts
-} > /tmp/hosts.tmp
-
-# Move the temporary file to /etc/hosts
-sudo mv /tmp/hosts.tmp /etc/hosts
-
-echo -e "${GREEN} File${NC} /etc/hosts ${GREEN}has been updated ${NC}"
-echo
-
-
 #####################
 # Update root hints #
 #####################
@@ -888,63 +945,6 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /usr/share/dns/root.hints
-echo
-
-
-#############################
-# Modify dhclient.conf file #
-#############################
-
-echo
-echo -e "${GREEN} Preventing${NC} dhclient ${GREEN}from overwriting${NC} resolve.conf"
-
-sleep 0.5 # delay for 0.5 seconds
-echo
-
-# Path to the dhclient.conf file
-DHCLIENT_CONF="/etc/dhcp/dhclient.conf"
-
-# Check if the dhclient.conf file exists
-if [ ! -f "$DHCLIENT_CONF" ]; then
-    echo -e "${RED} Error:${NC} $DHCLIENT_CONF ${RED}does not exist. ${NC}"
-    exit 1
-fi
-
-# Replace the specified lines
-sudo sed -i 's/domain-name, domain-name-servers, domain-search, host-name,/domain-name, domain-search, host-name,/' $DHCLIENT_CONF
-if [ $? -ne 0 ]; then
-    echo -e "${RED} Error: Failed to replace the first specified line. ${NC}"
-    exit 1
-fi
-
-sudo sed -i 's/dhcp6.name-servers, dhcp6.domain-search, dhcp6.fqdn, dhcp6.sntp-servers,/dhcp6.domain-search, dhcp6.fqdn, dhcp6.sntp-servers,/' $DHCLIENT_CONF
-if [ $? -ne 0 ]; then
-    echo -e "${RED} Error: Failed to replace the second specified line. ${NC}"
-    exit 1
-fi
-
-# Get the primary IP address of the machine
-IP_ADDRESS=$(hostname -I | awk '{print $1}')
-if [ -z "$IP_ADDRESS" ]; then
-    echo -e "${RED} Error: Failed to obtain the IP address of the machine. ${NC}"
-    exit 1
-fi
-
-# Check and replace the "prepend domain-name-servers" line with the machine's IP address
-sudo sed -i "/^#prepend domain-name-servers 127.0.0.1;/a prepend domain-name-servers ${IP_ADDRESS};" $DHCLIENT_CONF
-if [ $? -ne 0 ]; then
-    echo -e "${RED} Error: Failed to insert the machine's IP address. ${NC}"
-    exit 1
-fi
-
-# Now, find the line with the machine's IP address and add the 127.0.0.1 below it
-sudo sed -i "/^prepend domain-name-servers ${IP_ADDRESS};/a prepend domain-name-servers 127.0.0.1;" $DHCLIENT_CONF
-if [ $? -ne 0 ]; then
-    echo -e "${RED} Error: Failed to insert the${NC} 127.0.0.1 ${RED}address below the machine's IP address. ${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN} Modifications completed successfully. ${NC}"
 echo
 
 
@@ -1019,9 +1019,6 @@ EOF
                     local hash=$1
                     sed -i "s/SHA-256/$hash/" "$config_file" || echo -e "${RED} Error: Failed to replace the placeholder in $config_file${NC}" >&2
                 }
-
-#                num_lines=$(tput lines)
-#                echo -e "\033[${num_lines}A\033[0J"
 
                 # Loop until a valid password is entered
                 while true; do
