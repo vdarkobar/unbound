@@ -430,7 +430,8 @@ echo
 # Securing Shared Memory #
 ##########################
 
-echo -e "${GREEN}Securing Shared Memory...${NC}"
+echo -e "${GREEN} Securing Shared Memory...${NC}"
+echo
 
 # Define the line to append
 LINE="none /run/shm tmpfs defaults,ro 0 0"
@@ -446,7 +447,7 @@ fi
 # Setting up system variables #
 ###############################
 
-echo -e "${GREEN}Setting up system variables...${NC}"
+echo -e "${GREEN} Setting up system variables...${NC}"
 echo
 
 # Define the file path
@@ -485,6 +486,7 @@ auth_keys="/home/$user/.ssh/authorized_keys"
 
 # Ensure .ssh directory exists
 if [ ! -d "/home/$user/.ssh" ]; then
+    echo
     echo -e "${GREEN} Creating .ssh directory...${NC}"
     echo
     sudo mkdir -p "/home/$user/.ssh" || { echo -e "${RED}Error: Failed to create .ssh directory${NC}"; exit 1; }
@@ -518,6 +520,7 @@ done
 # Append the public key to the authorized_keys
 echo "$public_key" | sudo tee -a "$auth_keys" > /dev/null || { echo -e "${RED} Error: Failed to append the public key to authorized_keys${NC}"; exit 1; }
 
+echo
 echo -e "${GREEN} Public key added successfully.${NC}"
 
 
