@@ -186,6 +186,8 @@ for file in "${UNBOUND_FILES[@]}"; do
     fi
 done
 
+echo
+
 
 ############################################
 # Automatically enable unattended-upgrades #
@@ -218,7 +220,7 @@ if sudo sed -i 's|//Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|Un
    && sudo sed -i 's|//Unattended-Upgrade::Remove-Unused-Dependencies "false";|Unattended-Upgrade::Remove-Unused-Dependencies "true";|g' $FILEPATH \
    && sudo sed -i 's|//Unattended-Upgrade::Automatic-Reboot "false";|Unattended-Upgrade::Automatic-Reboot "true";|g' $FILEPATH \
    && sudo sed -i 's|//Unattended-Upgrade::Automatic-Reboot-Time "02:00";|Unattended-Upgrade::Automatic-Reboot-Time "02:00";|g' $FILEPATH; then
-    echo -e "${GREEN} Configuration updated successfully.${NC}"
+    echo -e "${GREEN} unattended-upgrades configuration updated successfully.${NC}"
     echo
 else
     echo -e "${RED} Failed to update configuration. Please check your permissions and file paths. Exiting.${NC}"
@@ -229,7 +231,8 @@ fi
 # Setting up Fail2Ban #
 #######################
 
-echo -e "${GREEN}Setting up Fail2Ban...${NC}"
+echo -e "${GREEN} Setting up Fail2Ban...${NC}"
+echo
 
 # Check if Fail2Ban is installed
 if ! command -v fail2ban-server >/dev/null 2>&1; then
@@ -243,7 +246,8 @@ if ! sudo sed -i 's|backend = auto|backend = systemd|g' /etc/fail2ban/jail.local
     exit 1
 fi
 
-echo -e "${GREEN}Configuring Fail2Ban for SSH protection...${NC}"
+echo -e "${GREEN} Configuring Fail2Ban for SSH protection...${NC}"
+echo
 
 # Set the path to the sshd configuration file
 config_file="/etc/fail2ban/jail.local"
@@ -266,7 +270,7 @@ if ! sudo sed -i 's|maxretry = 5|maxretry = 3|g' /etc/fail2ban/jail.local; then
     exit 1
 fi
 
-echo -e "${GREEN}Fail2Ban setup completed.${NC}"
+echo -e "${GREEN} Fail2Ban setup completed.${NC}"
 sleep 0.5 # delay for 0.5 seconds
 echo
 
@@ -962,13 +966,6 @@ ask_to_execute_commands() {
                 echo -e "${GREEN} Preconfiguring and installing Pi-Hole...${NC}"
 
 
-                ##########################
-                # Perform hw clock check #
-                ##########################
-                
-#                sudo hwclock --hctosys
-
-
                 ##############################
                 # Create setupVars.conf file #
                 ##############################
@@ -1186,6 +1183,15 @@ EOF
                 echo
 
 
+                #############################
+                # Perform pre install check #
+                #############################
+                
+                # Manually Stop the unattended-upgr Process,
+                # stops the automatic updates temporarily, allowing install to proceed
+                sudo systemctl stop unattended-upgrades
+
+
                 ##############################
                 # Run Pi-Hole install Script #
                 ##############################
@@ -1219,6 +1225,10 @@ EOF
 
 # Call the function
 ask_to_execute_commands
+
+
+# ensure package manager status is okay
+sudo dpkg --configure -a
 
 
 ##############################
