@@ -3,11 +3,6 @@
 clear
 
 ##############################################################
-################## T e m p l a t e  p a r t ##################
-### ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ ###
-
-
-##############################################################
 # Define ANSI escape sequence for green, red and yellow font #
 ##############################################################
 
@@ -76,18 +71,22 @@ while true; do
 done
 
 
-####################
-# Install packages #
-####################
+################## T e m p l a t e  p a r t ##################
+### ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ ###
 
-echo -e "${GREEN} Installing Unbound and other packages ${NC}"
+
+#######################
+# Installing packages #
+#######################
+
+echo -e "${GREEN} Installing Unbound and other packages${NC}"
 
 sleep 0.5 # delay for 0.5 seconds
 echo
 
 # Update the package repositories
 if ! sudo apt update; then
-    echo -e "${RED}Failed to update package repositories. Exiting.${NC}"
+    echo -e "${RED} Failed to update package repositories. Exiting.${NC}"
     exit 1
 fi
 
@@ -186,12 +185,11 @@ for file in "${UNBOUND_FILES[@]}"; do
     if [ ! -f "$file.backup" ]; then
         sudo cp "$file" "$file.backup"
         echo -e "${GREEN} Backup of${NC} $file ${GREEN}created.${NC}"
+        echo
     else
         echo -e "${YELLOW} Backup of${NC} $file ${YELLOW}already exists. Skipping backup.${NC}"
     fi
 done
-
-echo
 
 
 ######################
@@ -640,7 +638,6 @@ sleep 0.5 # delay for 0.5 second
 echo
 
 
-####################################################################
 ################## A p p l i c a t i o n  p a r t ##################
 ### ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ ###
 
@@ -1185,14 +1182,21 @@ EOF
                 # Perform pre install check #
                 #############################
                 
-                # Manually Stop the unattended-upgr Process,
-                # stops the automatic updates temporarily, allowing install to proceed
+                # Manually Stop the unattended-upgr Process (if running)
+                # Stops the automatic updates temporarily, allowing install to proceed
                 sudo systemctl stop unattended-upgrades
 
 
                 ##############################
                 # Run Pi-Hole install Script #
                 ##############################
+
+                # 
+                echo
+                echo -e "${GREEn} Installing Pi-Hole...${NC}"
+                echo
+                echo -e "${YELLOW} Important: Confirm >> keep << on previous installation detected!${NC}"
+                sleep 1 # delay for 1 seconds
                 
                 # Script
                 curl -sSL https://install.pi-hole.net | sudo bash
