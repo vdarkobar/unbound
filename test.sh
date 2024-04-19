@@ -500,6 +500,7 @@ fi
 # Ask the user for the public key
 while true; do
     echo -e "${YELLOW} Please enter your public SSH key:${NC}"
+    echo
     read public_key
 
     # Check if the input was empty
@@ -520,6 +521,7 @@ echo "$public_key" | sudo tee -a "$auth_keys" > /dev/null || { echo -e "${RED} E
 
 echo
 echo -e "${GREEN} Public key added successfully.${NC}"
+echo
 
 
 #################################
@@ -956,6 +958,7 @@ echo
 ask_to_execute_commands() {
     while true; do
         # Prompt the user
+        echo
         read -p "Do you want to install Pi-Hole alongside Unbound? (yes/no): " answer
         echo
         # Normalize the answer to lower case
@@ -1195,8 +1198,8 @@ EOF
                 echo
                 echo -e "${GREEn} Installing Pi-Hole...${NC}"
                 echo
-                echo -e "${YELLOW} Important: Confirm >> keep << on previous installation detected!${NC}"
-                sleep 1 # delay for 1 seconds
+                echo -e "${YELLOW} Important: Confirm >> OK << on:${NC}" Existing Install Detected!
+                sleep 1.5 # delay for 1.5 seconds
                 
                 # Script
                 curl -sSL https://install.pi-hole.net | sudo bash
