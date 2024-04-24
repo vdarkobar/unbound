@@ -142,14 +142,12 @@ if ! sudo apt install -y \
     gnupg2 \
     argon2 \
     fail2ban \
-    cloud-init \
     lsb-release \
     gnupg-agent \
     libpam-tmpdir \
     bash-completion \
     ca-certificates \
     qemu-guest-agent \
-    apt-transport-https \
     unattended-upgrades \
     cloud-initramfs-growroot \
     software-properties-common; then
