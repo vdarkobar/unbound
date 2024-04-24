@@ -15,13 +15,10 @@ Don't forget to add free space to cloned VM:
 > *CT > Resources > Root Disk > Volume Action > Resize*   
 
   
-### *Run on VM*:
+### *Run this command*:
 ```
 bash -c "$(wget -qLO - https://raw.githubusercontent.com/vdarkobar/unbound/main/setup.sh)"
 ```
-### *Run on CT*:
-```
-bash -c "$(wget -qLO - https://raw.githubusercontent.com/vdarkobar/unbound/main/setup-ct.sh)"
-```
+
 <br><br>
 *(steps used to configure <a href="https://github.com/vdarkobar/unbound/blob/main/steps.md">Unbound</a>)*
