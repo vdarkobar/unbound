@@ -259,54 +259,6 @@ for file in "${UNBOUND_FILES[@]}"; do
     fi
 done
 
-# Function to check if running in VM
-check_if_vm() {
-    # List of files in the DMI directory, excluding directories
-    local dmi_files=$(sudo find /sys/class/dmi/id/ -maxdepth 1 -type f 2>/dev/null)
-
-    # Check each file for VM identifiers
-    for file in $dmi_files; do
-        if sudo grep -qoE '(VMware|VirtualBox|KVM|QEMU|Microsoft Virtual Machine|Xen)' "$file" 2>/dev/null; then
-            echo -e "${GREEN} Running on a VM.${NC}"
-            echo
-            vm_actions
-            return 0
-        fi
-    done
-
-    echo -e "${GREEN} Not running on a VM. No changes required.${NC}"
-    echo
-    return 1
-}
-
-# Function to execute VM specific actions
-vm_actions() {
-    # Backup original /etc/cloud/cloud.cfg file before modifications
-    CLOUD_CFG="/etc/cloud/cloud.cfg"
-    if [ ! -f "$CLOUD_CFG.bak" ]; then
-        sudo cp "$CLOUD_CFG" "$CLOUD_CFG.bak"
-        echo -e "${GREEN} Backup of${NC} $CLOUD_CFG ${GREEN}created.${NC}"
-    else
-        echo -e "${YELLOW} Backup of${NC} $CLOUD_CFG ${YELLOW}already exists. Skipping backup.${NC}"
-    fi
-
-    echo
-    echo -e "${GREEN} Preventing Cloud-init from rewriting hosts file${NC}"
-    sleep 0.5 # delay for 0.5 seconds
-    echo
-
-    # Comment out the specified modules in cloud.cfg
-    sudo sed -i '/^\s*- set_hostname/ s/^/#/' "$CLOUD_CFG"
-    sudo sed -i '/^\s*- update_hostname/ s/^/#/' "$CLOUD_CFG"
-    sudo sed -i '/^\s*- update_etc_hosts/ s/^/#/' "$CLOUD_CFG"
-
-    echo -e "${GREEN} Modifications to${NC} $CLOUD_CFG ${GREEN}applied successfully.${NC}"
-    echo
-}
-
-# Execute check
-check_if_vm
-
 
 ######################
 # Prepare hosts file #
