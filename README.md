@@ -8,7 +8,7 @@ validating, recursive, caching DNS resolver with DNS over TLS (DoT), with option
 
   
 Don't forget to add free space to cloned VM:  
-> *VM > Hardware > Hard Disk > Disk Action > Resize*
+> *VM > Hardware > Hard Disk > Disk Action > Resize*  
 > *CT > Resources > Root Disk > Volume Action > Resize*   
 
   
