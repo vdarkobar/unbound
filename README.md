@@ -7,7 +7,7 @@
 validating, recursive, caching DNS resolver with DNS over TLS (DoT), with optional *Pi-Hole* install
 
   
-Don't forget to add free space to cloned VM:  
+Don't forget to add free space to cloned VM/CT:  
 > *VM > Hardware > Hard Disk > Disk Action > Resize*  
 > *CT > Resources > Root Disk > Volume Action > Resize*   
 
