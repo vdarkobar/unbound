@@ -73,7 +73,7 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 echo -e "${GREEN} You'll be asked to enter: ${NC}"
-echo -e " - Public Key to configure your SSH access to container"
+echo -e " - Public Key to configure your SSH access to VM/Container"
 echo -e " - One Local Subnet for Access Control"
 echo -e " - One entry for Local DNS Lookup (hostname/ip)"
 echo
