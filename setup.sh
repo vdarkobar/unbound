@@ -73,7 +73,7 @@ sleep 0.5 # delay for 0.5 seconds
 echo
 
 echo -e "${GREEN} You'll be asked to enter: ${NC}"
-echo -e " - Public Key to configure your SSH access to VM/Container"
+echo -e " - Public Key to configure your SSH access to container"
 echo -e " - One Local Subnet for Access Control"
 echo -e " - One entry for Local DNS Lookup (hostname/ip)"
 echo
@@ -1101,10 +1101,11 @@ EOF
                     echo -e "${GREEN} Please enter the Pi-Hole Web Admin Password (min 6 characters):${NC}"
                     echo
                     read -s -p "Password: " user_password
+                    echo
 
                     # Check if the password is empty
                     if [ -z "$user_password" ]; then
-                        echo -e "${RED}: No password entered. Please try again.${NC}"
+                        echo -e "${RED} No password entered. Please try again.${NC}"
                         echo
                         continue
                     fi
@@ -1115,6 +1116,21 @@ EOF
                         echo
                         continue
                     fi
+
+                    # Prompt the user to re-type the password for confirmation
+                    read -s -p "Re-enter Password: " confirm_password
+                    echo
+
+                    # Check if the passwords match
+                    if [ "$user_password" != "$confirm_password" ]; then
+                        echo -e "${RED} Error: Passwords do not match. Please try again.${NC}"
+                        echo
+                        continue
+                    fi
+
+                    # If all checks pass, break the loop
+                    echo
+                    echo -e "${GREEN} Password accepted.${NC}"
 
                     # Save user Web Admin Console Password in case you forgot
                     echo "$user_password" > "webadmin_password.txt" 
